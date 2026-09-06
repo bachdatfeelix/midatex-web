@@ -26,40 +26,105 @@ const upload = multer({
 });
 
 /**
- * System prompt for Vietnamese & International Math Exam / Formula Extraction
- * Strict raw-LaTeX-only output enforcement — no markdown fences, no explanations
+ * Comprehensive System Prompt Builder for Vietnamese & International Math Exam / Document Extraction
+ * Enforces strict question ordering, exact spatial layout matching, TikZ accuracy, and full LaTeX packages.
  */
-const SYSTEM_PROMPT = `Bạn là hệ thống chuyển đổi ảnh đề thi Toán học sang mã nguồn LaTeX chất lượng cao với độ chuẩn xác tuyệt đối so với ảnh gốc.
+function buildSystemPrompt(isFullDocument = true, customNotes = '') {
+  const outputFormat = isFullDocument
+    ? `- Tạo TOÀN BỘ TÀI LIỆU LATEX HOÀN CHỈNH (.tex) bắt đầu bằng \\documentclass[12pt,a4paper]{article} và kết thúc bằng \\end{document}.
+- Luôn khai báo đầy đủ các gói: inputenc (utf8), babel (vietnamese), amsmath, amssymb, amsfonts, mathrsfs, mathtools, geometry, graphicx, tikz, tkz-tab, pgfplots, enumitem, tasks, multicol, booktabs, tabularx, array.
+- geometry: \\geometry{a4paper, top=1.5cm, bottom=1.5cm, left=1.8cm, right=1.8cm}.`
+    : `- Chỉ trả về ĐOẠN MÃ LATEX NỘI DUNG (Snippet), KHÔNG kèm \\documentclass, preamble hay \\begin{document}...\\end{document}.`;
 
-QUAN TRỌNG NHẤT — ĐỊNH DẠNG ĐẦU RA:
-- Chỉ trả về MÃ LATEX THUẦN TÚY. KHÔNG bao giờ bọc trong \`\`\`latex ... \`\`\` hay bất kỳ markdown code fence nào.
-- KHÔNG viết bất kỳ lời giải thích, ghi chú, nhận xét nào trước hoặc sau mã LaTeX.
-- Output phải bắt đầu bằng \\documentclass và kết thúc bằng \\end{document}. Không có gì khác.
-- Luôn bao gồm đầy đủ các gói: inputenc (utf8), babel (vietnamese), amsmath, amssymb, tikz, geometry, enumitem.
+  return `Bạn là chuyên gia chuyển đổi hình ảnh/PDF đề thi Toán học Việt Nam sang mã nguồn LaTeX chuẩn đẹp, chuyên nghiệp với độ chuẩn xác 100% về cả NỘI DUNG TOÁN HỌC lẫn BỐ CỤC KHÔNG GIAN (LAYOUT).
 
-QUY TẮC CỐT LÕI:
-1. BỐ CỤC VĂN BẢN VÀ MINIPAGE:
-   - Nếu có hình vẽ/bảng biến thiên bên phải, sử dụng tỷ lệ chuẩn:
-     \\begin{minipage}[c]{0.58\\textwidth} ... \\end{minipage}%
-     \\hfill
-     \\begin{minipage}[c]{0.40\\textwidth} ... \\end{minipage}
-   - VĂN BẢN TỰ ĐỘNG DÀN DÒNG: Để LaTeX tự ngắt dòng tự nhiên, KHÔNG chèn ngắt dòng thủ công (\\\\) giữa câu văn. Viết liền các biểu thức ngắn như $y=f(x)$.
+======================================================================
+1. NGUYÊN TẮC BẢO TOÀN VỊ TRÍ & THỨ TỰ (BẮT BUỘC - TUYỆT ĐỐI TUÂN THỦ):
+======================================================================
+- GIỮ NGUYÊN 100% THỨ TỰ CÁC CÂU HỎI VÀ NỘI DUNG từ trên xuống dưới, theo đúng thứ tự đọc của ảnh/PDF gốc.
+- TUYỆT ĐỐI KHÔNG ĐƯỢC đảo lộn thứ tự câu hỏi, không đổi chỗ các bài toán, không tự ý sắp xếp lại theo độ khó hay theo chuyên đề.
+- KHÔNG ĐƯỢC BỎ SÓT bất kỳ câu hỏi, đoạn dẫn, bảng số liệu, hình vẽ hay chú thích nào.
+- Giữ nguyên cách đánh số nguyên bản trong ảnh: "Câu 1.", "Câu 2.", "Bài 1", "Bài 2", "Phần I", "Phần II", "[1]", "(1)"...
 
-2. QUY CHUẨN DỰNG BẢNG BIẾN THIÊN (Tránh co cụm, đè vạch):
-   - MỞ RỘNG CHIỀU NGANG: Mỗi khoảng giá trị phải có chiều rộng tối thiểu 2.0cm - 2.5cm.
-   - VẠCH ĐÔI KHÔNG XÁC ĐỊNH (||): Vẽ bằng 2 đường thẳng song song cách nhau 2pt.
-   - MŨI TÊN BIẾN THIÊN: Điểm đầu và cuối có khoảng đệm (shorten >= 3pt, shorten <= 3pt).
-   - NÉT BẢNG: Đường kẻ ngang phân cách hàng x, f'(x), f(x) dùng nét \\draw[thick].
+======================================================================
+2. TÁI TẠO BỐ CỤC (LAYOUT) Y HỆT ẢNH HOẶC PDF GỐC:
+======================================================================
+- TIÊU ĐỀ ĐỀ THI (HEADER):
+  + Nếu ảnh có khung tiêu đề 2 bên (Trường/Sở GD bên trái, Tên kỳ thi/Mã đề/Thời gian bên phải): Bắt buộc dùng 2 minipage hoặc bảng tabular để tái hiện y hệt 2 cột đầu đề.
+  + Ví dụ:
+    \\noindent\\begin{minipage}[t]{0.45\\textwidth}
+    \\textbf{SỞ GD\\&ĐT ...}\\\\
+    \\textbf{TRƯỜNG THPT ...}
+    \\end{minipage}\\hfill
+    \\begin{minipage}[t]{0.50\\textwidth}
+    \\textbf{ĐỀ THI HỌC KỲ / THỬ TỐT NGHIỆP THPT}\\\\
+    \\textit{Môn: Toán -- Thời gian: 90 phút}
+    \\end{minipage}
+    \\vspace{0.3cm}
+    \\hrule
+    \\vspace{0.5cm}
 
-3. QUY CHUẨN ĐỒ THỊ TIKZ:
-   - Trục Ox vẽ dài qua mốc cuối cùng 0.6 đơn vị.
-   - Tên trục y (node[right] {$y$}) tách biệt hoàn toàn với tên hàm số.
-   - Đồ thị vẽ bằng \\draw plot (\\x, {công thức giải tích}).
+- BỐ CỤC CÂU HỎI CÓ HÌNH VẼ / BẢNG BIẾN THIÊN BÊN CẠNH:
+  + Nếu hình vẽ/bảng biến thiên nằm BÊN PHẢI văn bản câu hỏi: BẮT BUỘC dùng cấu trúc minipage song song để chữ bên trái và hình bên phải:
+    \\noindent\\begin{minipage}[t]{0.60\\textwidth}
+    \\textbf{Câu X.} Nội dung câu hỏi...
+    \\begin{tasks}(2)
+    \\task \\textbf{A.} ...
+    \\task \\textbf{B.} ...
+    \\task \\textbf{C.} ...
+    \\task \\textbf{D.} ...
+    \\end{tasks}
+    \\end{minipage}%
+    \\hfill
+    \\begin{minipage}[t]{0.38\\textwidth}
+    \\vspace{0pt}
+    \\centering
+    \\begin{tikzpicture}[scale=...]
+    ...
+    \\end{tikzpicture}
+    \\end{minipage}
+  + Nếu hình vẽ nằm DƯỚI câu hỏi: Đặt hình vẽ căn giữa ngay bên dưới: \\begin{center}\\begin{tikzpicture}...\\end{tikzpicture}\\end{center}.
 
-4. ĐỘ CHÍNH XÁC:
-   - Sao chép chính xác 100% mọi con số, công thức, ký hiệu, dấu từ ảnh gốc.
-   - Giữ đúng thứ tự câu hỏi, đáp án, cấu trúc đề thi.
-   - Nếu có nhiều cột đáp án (A/B/C/D), dùng \\begin{tasks}(4) hoặc minipage.`;
+- BỐ CỤC CÁC ĐÁP ÁN TRẮC NGHIỆM (A, B, C, D):
+  + Nhìn chính xác cách chia dòng của 4 đáp án trong ảnh:
+    * 4 đáp án nằm trên 1 dòng: Dùng \\begin{tasks}(4) \\task \\textbf{A.} ... \\task \\textbf{B.} ... \\task \\textbf{C.} ... \\task \\textbf{D.} ... \\end{tasks}
+    * 4 đáp án chia làm 2 dòng (2 cột): Dùng \\begin{tasks}(2) ... \\end{tasks}
+    * 4 đáp án xếp dọc (4 dòng): Dùng \\begin{tasks}(1) ... \\end{tasks}
+  + Luôn in đậm nhãn đáp án: \\textbf{A.}, \\textbf{B.}, \\textbf{C.}, \\textbf{D.}
+
+- ĐỀ THI 2 CỘT (TWO COLUMNS):
+  + Nếu ảnh là trang đề thi chia làm 2 cột dọc: Dùng môi trường \\begin{multicols}{2} ... \\end{multicols}.
+
+======================================================================
+3. QUY CHUẨN VẼ HÌNH TIKZ & BẢNG BIẾN THIÊN (ĐẸP & CHUẨN XÁC):
+======================================================================
+- ĐỒ THỊ HÀM SỐ:
+  + Vẽ hệ trục Oxy có mũi tên ->, đánh dấu các điểm cắt trục toạ độ, cực trị, tiệm cận (đường đứt nét dashed).
+  + Vẽ đường cong hàm số mượt mà bằng \\draw[thick, smooth, samples=100, domain=...] plot (\\x, {công thức});
+- BẢNG BIẾN THIÊN:
+  + Dựng bảng bằng \\begin{tikzpicture} hoặc tkz-tab hoặc tabular, khoảng cách các cột rộng rãi (>= 2cm), có vạch kép || ở điểm không xác định, mũi tên biến thiên rõ ràng.
+- HÌNH HỌC KHÔNG GIAN / HÌNH PHẲNG:
+  + Nét khuất dùng nét đứt \\draw[dashed], nét nhìn thấy dùng \\draw[thick].
+  + Ký hiệu góc vuông, đỉnh, tên điểm rõ ràng.
+
+======================================================================
+4. KÝ HIỆU TOÁN HỌC VIỆT NAM CHUẨN:
+======================================================================
+- Vector: \\vec{a}, \\overrightarrow{AB}.
+- Tập hợp: \\mathbb{R}, \\mathbb{N}, \\mathbb{Z}, \\mathbb{Q}, \\mathbb{C}, \\varnothing.
+- Phân số: Luôn dùng \\dfrac{a}{b} cho công thức hiển thị đẹp.
+- Hệ phương trình/tuyển: \\begin{cases} ... \\end{cases} hoặc \\left[\\begin{array}{l} ... \\end{array}\\right.
+- Tích phân / Đạo hàm: \\int_{a}^{b} f(x)\\,\\mathrm{d}x, f'(x), y''.
+- Chữ tiếng Việt trong công thức toán phải đặt trong \\text{...} (ví dụ: $V_{\\text{chóp}}$, $\\text{đpcm}$).
+
+======================================================================
+5. ĐỊNH DẠNG ĐẦU RA:
+======================================================================
+${outputFormat}
+- Chỉ trả về MÃ LATEX THUẦN TÚY. KHÔNG bọc trong markdown fences (\`\`\`latex ... \`\`\`).
+- KHÔNG thêm bất kỳ câu chào, nhận xét hay giải thích nào trước hoặc sau mã LaTeX.
+${customNotes ? `\nLƯU Ý ĐẶC BIỆT TỪ NGƯỜI DÙNG: ${customNotes}` : ''}`;
+}
 
 /**
  * Robust LaTeX extractor — handles all Gemini response variations:
@@ -105,7 +170,7 @@ function extractLatexFromResponse(rawText) {
 /**
  * Gemini Vision API handler with Self-Healing Multi-Key & Multi-Model Instant Fallback
  */
-async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument = true, customNotes = '', requestedModel = 'gemini-3.7-flash') {
+async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument = true, customNotes = '', requestedModel = 'gemini-3.8-flash') {
   let rawKeys = [];
   if (Array.isArray(apiKeys)) {
     rawKeys = apiKeys;
@@ -129,16 +194,20 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
     throw new Error('Chưa có Gemini API Key hợp lệ! Hãy bấm vào biểu tượng Cài đặt (⚙) ở góc phải để nhập Gemini API Key miễn phí từ Google AI Studio (aistudio.google.com).');
   }
 
-  // Candidate models priority list: gemini-3.7-flash first, then fallbacks
+  // Candidate models priority list: gemini-3.8-flash -> gemini-3.7-flash -> gemini-3.1-pro -> fallbacks
   const candidateModels = [
     requestedModel,
+    'gemini-3.8-flash',
     'gemini-3.7-flash',
+    'gemini-3.1-pro',
+    'gemini-2.5-pro',
     'gemini-2.5-flash',
     'gemini-2.0-flash',
+    'gemini-1.5-pro',
     'gemini-1.5-flash'
   ].filter((v, i, a) => v && a.indexOf(v) === i);
 
-  const promptText = `${SYSTEM_PROMPT}${customNotes ? `\n\n- Lưu ý thêm từ người dùng: ${customNotes}` : ''}`;
+  const promptText = buildSystemPrompt(isFullDocument, customNotes);
 
   const payload = {
     contents: [
@@ -163,15 +232,19 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
 
   let lastError = null;
   let hasSwitchedKey = false;
+  let hasSwitchedModel = false;
   const startTime = Date.now();
 
-  for (let keyIdx = 0; keyIdx < keysList.length; keyIdx++) {
-    const currentKey = keysList[keyIdx];
-    const keyPreview = `${currentKey.substring(0, 6)}...${currentKey.slice(-4)}`;
+  modelLoop:
+  for (let modelIdx = 0; modelIdx < candidateModels.length; modelIdx++) {
+    const modelName = candidateModels[modelIdx];
+    const cleanModel = modelName.replace(/^models\//, '');
 
-    for (const modelName of candidateModels) {
+    for (let keyIdx = 0; keyIdx < keysList.length; keyIdx++) {
+      const currentKey = keysList[keyIdx];
+      const keyPreview = `${currentKey.substring(0, 6)}...${currentKey.slice(-4)}`;
+
       try {
-        const cleanModel = modelName.replace(/^models\//, '');
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${currentKey}`;
 
         const response = await fetch(url, {
@@ -194,9 +267,14 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
             /\bUNAVAILABLE\b|high demand|overloaded|temporarily/i.test(msg);
 
           if (isOverloadedOrUnavailable) {
-            console.warn(`[Gemini OCR] Model "${cleanModel}" đang quá tải (HTTP ${response.status}). Đang tự động chuyển ngay sang model dự phòng...`);
+            console.warn(`[Gemini OCR] Model "${cleanModel}" đang quá tải (HTTP ${response.status}).`);
             lastError = new Error(msg);
-            continue; // Instantly advance to next model in candidateModels
+            if (keyIdx < keysList.length - 1) {
+              continue;
+            } else {
+              hasSwitchedModel = true;
+              continue modelLoop;
+            }
           }
 
           const isRateLimitOrQuota = response.status === 429 || 
@@ -207,20 +285,31 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
                                      msg.includes('Too Many Requests');
 
           if (isRateLimitOrQuota) {
-            console.warn(`[Gemini OCR] ⚠️ API Key #${keyIdx + 1} (${keyPreview}) bị giới hạn Quota / Rate Limit (HTTP ${response.status}: ${msg}).`);
+            console.warn(`[Gemini OCR] ⚠️ Model "${cleanModel}" với API Key #${keyIdx + 1} (${keyPreview}) bị giới hạn Quota / Rate Limit (HTTP ${response.status}).`);
             if (keyIdx < keysList.length - 1) {
               const nextKeyPreview = `${keysList[keyIdx + 1].substring(0, 6)}...${keysList[keyIdx + 1].slice(-4)}`;
-              console.log(`[Gemini OCR] 🔄 Đang tự động chuyển sang API Key dự phòng #${keyIdx + 2} (${nextKeyPreview})...`);
+              console.log(`[Gemini OCR] 🔄 Thử API Key dự phòng #${keyIdx + 2} (${nextKeyPreview}) cho model "${cleanModel}"...`);
               hasSwitchedKey = true;
+              continue;
+            } else {
+              console.warn(`[Gemini OCR] 🔄 Tất cả Key đều đạt hạn mức cho "${cleanModel}". Đang chuyển sang model dự phòng tiếp theo...`);
+              hasSwitchedModel = true;
+              lastError = new Error(`Model ${cleanModel} hết quota: ${msg}`);
+              continue modelLoop;
             }
-            lastError = new Error(`API Key #${keyIdx + 1} bị quá tải/hết quota (${msg})`);
-            break; // Advance to next key
           }
 
-          if (response.status === 404 || msg.includes('no longer available') || msg.includes('not found') || msg.includes('is not supported')) {
-            console.warn(`[Gemini OCR] Model "${cleanModel}" không khả dụng (${msg}). Đang chuyển sang model dự phòng...`);
+          const isModelUnavailable = response.status === 404 ||
+            (response.status === 400 && (msg.includes('not found') || msg.includes('not supported') || msg.includes('does not exist') || msg.includes('invalid') || msg.includes('unsupported'))) ||
+            msg.includes('no longer available') ||
+            msg.includes('not found') ||
+            msg.includes('is not supported');
+
+          if (isModelUnavailable) {
+            console.warn(`[Gemini OCR] Model "${cleanModel}" không khả dụng (${msg}). Tự động chuyển sang model kế tiếp...`);
+            hasSwitchedModel = true;
             lastError = new Error(msg);
-            continue;
+            continue modelLoop;
           }
 
           throw new Error(msg);
@@ -242,9 +331,10 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
           if (blockReason) {
             throw new Error(`Gemini đã chặn yêu cầu (${blockReason}). Vui lòng thử ảnh khác.`);
           }
-          console.warn(`[Gemini OCR] Empty response with finishReason=${finishReason}. Trying next model...`);
+          console.warn(`[Gemini OCR] Kết quả rỗng từ model "${cleanModel}". Đang thử model tiếp theo...`);
           lastError = new Error('Gemini trả về kết quả rỗng. Đang thử model khác...');
-          continue;
+          hasSwitchedModel = true;
+          continue modelLoop;
         }
 
         // Robust LaTeX extraction — handle all Gemini output variations
@@ -264,6 +354,7 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
           usedModel: cleanModel,
           usedKeyIndex: keyIdx,
           switchedKey: hasSwitchedKey || keyIdx > 0,
+          switchedModel: hasSwitchedModel || cleanModel !== requestedModel.replace(/^models\//, ''),
           usedKeyPreview: keyPreview,
           elapsedSeconds: parseFloat(elapsedSec)
         };
@@ -272,16 +363,24 @@ async function callGeminiVision(apiKeys, base64Image, mimeType, isFullDocument =
         const msg = err.message || '';
         const isRateLimit = msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota') || msg.includes('Rate limit') || msg.includes('429');
         if (isRateLimit) {
-          break; // Advance to next key
+          if (keyIdx < keysList.length - 1) {
+            hasSwitchedKey = true;
+            continue;
+          } else {
+            hasSwitchedModel = true;
+            continue modelLoop;
+          }
         }
-        if (!msg.includes('no longer available') && !msg.includes('not found') && !msg.includes('high demand') && !msg.includes('503')) {
-          throw err;
+        if (msg.includes('no longer available') || msg.includes('not found') || msg.includes('not supported') || msg.includes('high demand') || msg.includes('503')) {
+          hasSwitchedModel = true;
+          continue modelLoop;
         }
+        throw err;
       }
     }
   }
 
-  throw lastError || new Error('Không thể kết nối với Gemini API. Tất cả API Key đều bị giới hạn hạn ngạch hoặc không khả dụng.');
+  throw lastError || new Error('Không thể kết nối với Gemini API. Tất cả Model và API Key đều bị giới hạn hạn ngạch hoặc không khả dụng.');
 }
 
 /**
@@ -326,7 +425,7 @@ app.post(['/api/convert', '/convert'], upload.single('image'), async (req, res) 
     if (process.env.GEMINI_BACKUP_KEY) candidateKeys.push(process.env.GEMINI_BACKUP_KEY);
 
     candidateKeys = candidateKeys.filter((v, i, a) => v && a.indexOf(v) === i);
-    const geminiModel = req.body.geminiModel || process.env.GEMINI_MODEL || 'gemini-3.7-flash';
+    const geminiModel = req.body.geminiModel || process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
     if (candidateKeys.length === 0) {
       return res.status(400).json({
@@ -338,8 +437,14 @@ app.post(['/api/convert', '/convert'], upload.single('image'), async (req, res) 
     const result = await callGeminiVision(candidateKeys, base64Image, mimeType, isFullDocument, customNotes, geminiModel);
     const latexResult = result.latex;
     const switchedKey = result.switchedKey;
+    const switchedModel = result.switchedModel;
     let fallbackNotice = null;
-    if (switchedKey) {
+
+    if (switchedModel && switchedKey) {
+      fallbackNotice = `Đã tự động chuyển sang model "${result.usedModel}" và API Key #${result.usedKeyIndex + 1} (${result.usedKeyPreview}) do giới hạn hệ thống!`;
+    } else if (switchedModel) {
+      fallbackNotice = `Đã tự động chuyển sang model dự phòng "${result.usedModel}"!`;
+    } else if (switchedKey) {
       fallbackNotice = `Đã tự động chuyển sang API Key #${result.usedKeyIndex + 1} (${result.usedKeyPreview}) do Key trước bị giới hạn hạn ngạch (Rate Limit)!`;
     }
 
@@ -347,8 +452,11 @@ app.post(['/api/convert', '/convert'], upload.single('image'), async (req, res) 
       success: true,
       latex: latexResult,
       engine: 'gemini',
+      usedModel: result.usedModel,
       switchedKey: switchedKey,
+      switchedModel: switchedModel,
       fallbackNotice: fallbackNotice,
+      elapsedSeconds: result.elapsedSeconds,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -387,7 +495,7 @@ app.get(['/api/status', '/status'], (req, res) => {
     status: 'online',
     app: 'Math2LaTeX Studio PRO',
     version: '1.0.0',
-    defaultModel: 'gemini-3.7-flash',
+    defaultModel: 'gemini-3.8-flash',
     hasEnvKey: !!process.env.GEMINI_API_KEY
   });
 });

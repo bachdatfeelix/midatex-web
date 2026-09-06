@@ -14,8 +14,8 @@
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- Cropper.js -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+  <!-- Cropper.js (Local for 100% offline & fast reliability) -->
+  <link rel="stylesheet" href="cropper.min.css">
 
   <!-- KaTeX -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -199,8 +199,23 @@
 
           <!-- Standard Image Preview -->
           <div id="imagePreviewContainer" class="hidden w-full flex flex-col items-center gap-3 z-10">
-            <div class="relative w-full max-h-[380px] overflow-hidden rounded-md dark:bg-board-950 bg-gray-100 flex items-center justify-center border dark:border-chalk/10 border-[#E5E0D8]">
-              <img id="previewImg" src="" alt="Ảnh đề toán đã tải" class="max-h-[360px] max-w-full object-contain">
+            <div class="relative w-full max-h-[380px] overflow-hidden rounded-xl dark:bg-board-950 bg-gray-100 flex items-center justify-center border dark:border-chalk/10 border-[#E5E0D8] group/preview shadow-inner">
+              <img id="previewImg" src="" alt="Ảnh đề toán đã tải" class="max-h-[360px] max-w-full object-contain select-none">
+
+              <!-- Floating Quick Action Overlay -->
+              <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 p-1 rounded-lg backdrop-blur-md dark:bg-board-950/80 bg-white/90 border dark:border-chalk/15 border-black/10 shadow-md opacity-90 hover:opacity-100 transition-all duration-200">
+                <button id="quickCropBtn" type="button" class="preview-quick-btn preview-quick-crop" title="Cắt vùng chọn ngay (Phím C)">
+                  <i class="fa-solid fa-crop-simple"></i>
+                  <span class="text-[11px] font-semibold hidden sm:inline">Cắt</span>
+                </button>
+                <button id="quickRotateBtn" type="button" class="preview-quick-btn preview-quick-rotate" title="Xoay ảnh 90° (Phím R)">
+                  <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <div class="h-3.5 w-px dark:bg-chalk/15 bg-black/10 mx-0.5"></div>
+                <button id="quickDeleteBtn" type="button" class="preview-quick-btn preview-quick-delete" title="Xóa ảnh (Phím Del)">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -259,24 +274,28 @@
         </div>
 
         <!-- Image tools bar (Standard mode) -->
-        <div id="imageToolsBar" class="hidden flex-wrap items-center justify-between gap-2 p-2 rounded-md dark:bg-board-950/60 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] text-xs animate-scaleUp">
-          <div class="flex items-center gap-1.5">
-            <button id="cropToggleBtn" class="btn-chip">
-              <i class="fa-solid fa-crop-simple text-gold"></i> Cắt vùng chọn
+        <div id="imageToolsBar" class="image-tools-bar hidden animate-scaleUp">
+          <div class="image-tools-group">
+            <button id="cropToggleBtn" type="button" class="btn-tool-crop" title="Mở công cụ cắt vùng chọn chi tiết (Phím C)">
+              <span class="btn-tool-icon-box">
+                <i class="fa-solid fa-crop-simple"></i>
+              </span>
+              <span>Cắt vùng chọn</span>
+              <span class="btn-tool-badge">Khoanh câu</span>
             </button>
-            <button id="cropApplyBtn" class="hidden btn-chip btn-chip-solid-sage">
-              <i class="fa-solid fa-check"></i> Xác nhận cắt
-            </button>
-            <button id="cropCancelBtn" class="hidden btn-chip">
-              Hủy
-            </button>
-            <button id="rotateBtn" title="Xoay ảnh 90°" class="icon-btn">
+            <button id="rotateBtn" type="button" class="btn-tool-rotate" title="Xoay ảnh 90° (Phím R)">
               <i class="fa-solid fa-rotate-right"></i>
+              <span class="text-[11px] font-medium opacity-85">90°</span>
             </button>
           </div>
-          <button id="clearImageBtn" class="text-pen/80 hover:text-pen text-xs font-medium flex items-center gap-1 transition-colors">
-            <i class="fa-regular fa-trash-can"></i> Xóa ảnh
-          </button>
+          <div class="image-tools-group">
+            <button id="clearImageBtn" type="button" class="btn-tool-delete" title="Xóa ảnh hiện tại để chọn ảnh khác (Phím Del)">
+              <span class="delete-icon-box">
+                <i class="fa-regular fa-trash-can"></i>
+              </span>
+              <span>Xóa ảnh</span>
+            </button>
+          </div>
         </div>
 
         <!-- Custom notes -->
@@ -528,8 +547,13 @@
           <div class="flex items-center justify-between gap-2 pt-2 border-t dark:border-chalk/10 border-[#E5E0D8]">
             <label for="geminiModelSelect" class="dark:text-chalk-dim text-[#6B6560] font-medium">Model Vision:</label>
             <select id="geminiModelSelect" class="dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/12 border-[#E5E0D8] focus:border-gold rounded-lg px-2.5 py-1.5 dark:text-chalk text-paper-ink font-mono text-xs outline-none cursor-pointer">
-              <option value="gemini-3.7-flash" selected>gemini-3.7-flash (Mạnh nhất &amp; khuyên dùng)</option>
-              <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Mặc định - Mới nhất &amp; Siêu tốc)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (Mạnh nhất &amp; Khuyên dùng)</option>
+              <option value="gemini-3.1-pro">gemini-3.1-pro (Chuyên sâu lý luận cao cấp)</option>
+              <option value="gemini-2.5-pro">gemini-2.5-pro (Tư duy chuyên sâu 2.5)</option>
+              <option value="gemini-2.5-flash">gemini-2.5-flash (Nhanh &amp; Ổn định)</option>
+              <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+              <option value="gemini-1.5-pro">gemini-1.5-pro</option>
               <option value="gemini-1.5-flash">gemini-1.5-flash</option>
             </select>
           </div>
@@ -595,6 +619,68 @@
     </div>
   </div>
 
+  <!-- Dedicated Cropper Modal -->
+  <div id="cropModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4 md:p-6">
+    <div class="modal-panel flex flex-col w-full max-w-5xl h-[92vh] max-h-[900px] overflow-hidden rounded-2xl border dark:border-chalk/15 border-[#E5E0D8] shadow-2xl animate-scaleUp">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-5 py-3.5 border-b dark:border-chalk/10 border-[#E5E0D8] bg-board-900/50 dark:bg-board-950/80 shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="w-9 h-9 rounded-xl bg-gold/15 text-gold flex items-center justify-center font-bold text-base shadow-sm">
+            <i class="fa-solid fa-crop-simple"></i>
+          </span>
+          <div>
+            <h3 class="font-display text-sm sm:text-base font-bold dark:text-chalk text-paper-ink">Cắt Vùng Chọn Đề Toán</h3>
+            <p class="text-[11px] dark:text-chalk-dim text-[#6B6560]">Dùng chuột hoặc ngón tay khoanh vùng câu hỏi / công thức cần chuyển đổi</p>
+          </div>
+        </div>
+        <button id="closeCropModalBtn" type="button" class="icon-btn" title="Đóng (Esc)">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Modal Canvas / Cropper Container -->
+      <div class="flex-1 min-h-0 bg-[#0c1015] relative overflow-hidden flex items-center justify-center p-3">
+        <div class="w-full h-full max-w-full max-h-full flex items-center justify-center overflow-hidden">
+          <img id="cropModalImg" src="" alt="Vùng cắt ảnh" class="max-w-full max-h-full block">
+        </div>
+      </div>
+
+      <!-- Modal Toolbar & Action Footer -->
+      <div class="px-5 py-3 border-t dark:border-chalk/10 border-[#E5E0D8] bg-board-900/80 dark:bg-board-950 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <!-- Transform Controls -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button id="cropZoomInBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Phóng to (+)">
+            <i class="fa-solid fa-magnifying-glass-plus text-gold"></i>
+          </button>
+          <button id="cropZoomOutBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Thu nhỏ (-)">
+            <i class="fa-solid fa-magnifying-glass-minus text-gold"></i>
+          </button>
+          <div class="h-4 w-px bg-chalk/10 mx-1"></div>
+          <button id="cropRotateLeftBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Xoay trái 90°">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button id="cropRotateRightBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Xoay phải 90°">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <div class="h-4 w-px bg-chalk/10 mx-1"></div>
+          <button id="cropResetBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Khôi phục khung mặc định">
+            <i class="fa-solid fa-arrows-rotate"></i> Khôi phục
+          </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+          <button id="cropCancelModalBtn" type="button" class="btn-crop-cancel text-xs py-2 px-3.5 flex items-center gap-1.5 font-medium rounded-lg transition-all" title="Hủy bỏ và đóng hộp thoại (Esc)">
+            <i class="fa-solid fa-xmark text-xs"></i> Hủy Bỏ <kbd class="modal-kbd">Esc</kbd>
+          </button>
+          <button id="cropConfirmModalBtn" type="button" class="btn-crop-confirm text-xs py-2 px-4 font-bold flex items-center gap-1.5 rounded-lg shadow-md transition-all" title="Xác nhận vùng chọn đã cắt (Ctrl + Enter)">
+            <i class="fa-solid fa-check"></i> Xác Nhận Cắt <kbd class="modal-kbd">Ctrl+↵</kbd>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
 
@@ -603,8 +689,8 @@
     <input type="hidden" name="snip" id="overleafSnipInput">
   </form>
 
-  <!-- Cropper.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+  <!-- Cropper.js (Local) -->
+  <script src="cropper.min.js"></script>
   <!-- Application logic -->
   <script src="app.js"></script>
 </body>

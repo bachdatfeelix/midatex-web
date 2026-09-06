@@ -1,0 +1,130 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amssymb,amsfonts,mathrsfs,mathtools}
+\usepackage{geometry}
+\geometry{a4paper, top=1.5cm, bottom=1.5cm, left=1.8cm, right=1.8cm}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tkz-tab}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tasks}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{array}
+
+\begin{document}
+
+\noindent
+\begin{minipage}[t]{0.45\textwidth}
+\textbf{SỞ GD\&ĐT HÀ NỘI}\\[2pt]
+\textbf{TRƯỜNG THPT CHUYÊN HÀ NỘI - AMSTERDAM}\\[2pt]
+\textit{Mã đề thi: 888}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.50\textwidth}
+\textbf{KỲ THI CHỌN ĐỘI TUYỂN HSG QUỐC GIA}\\[2pt]
+\textbf{BÀI THI MÔN: TOÁN HỌC (ĐẶC BIỆT)}\\[2pt]
+\textit{Thời gian làm bài: 180 phút (không kể phát đề)}
+\end{minipage}
+
+\vspace{0.25cm}
+\hrule height 1pt
+\vspace{0.4cm}
+
+\noindent\textbf{Câu 1 (Giải tích tích phân & Chuỗi vô hạn - Mức độ 10+):}\\
+Cho hàm số $f(x)$ liên tục và khả vi vô hạn trên $(0, +\infty)$. Xét biểu thức tích phân phụ thuộc tham số $\alpha \in (0, 1)$:
+\[
+\mathcal{I}(\alpha) = \int_{0}^{\infty} \frac{\ln\left(1 + 2x\cos\theta + x^2\right)}{x^\alpha \left(1 + x^2\right)} \mathrm{d}x + \lim_{n \to \infty} \sum_{k=1}^{n} \cfrac{1}{k^2 + \cfrac{1}{k + \cfrac{1}{k^3 + \cfrac{(-1)^k}{\sqrt{k!}}}}}
+\]
+Biết rằng giá trị của $\mathcal{I}\left(\frac{1}{2}\right)$ được biểu diễn dưới dạng $\dfrac{\pi}{\sqrt{2}} \ln\left(a + b\sqrt{2}\right) + \zeta(3) \cdot \Gamma\left(\dfrac{3}{4}\right)$, trong đó $a, b \in \mathbb{Q}$. Tính $T = 4a^2 + 8b^3$.
+\begin{tasks}(4)
+\task \textbf{A.} $T = \dfrac{17}{4}$
+\task \textbf{B.} $T = \dfrac{35}{8}$
+\task \textbf{C.} $T = 12\sqrt{2}$
+\task \textbf{D.} $T = \dfrac{25}{2}$
+\end{tasks}
+
+\vspace{0.4cm}
+
+\noindent\textbf{Câu 2 (Hệ phương trình ma trận & Tích phân mặt):}\\
+Tìm tất cả các giá trị của tham số thực $\lambda \in \mathbb{R}$ để hệ phương trình ma trận phi tuyến sau có nghiệm duy nhất:
+\[
+\begin{cases}
+\det \begin{pmatrix} 
+\lambda - x & -y & -\sqrt{z} \\ 
+-y & \lambda - z & -x \\ 
+-\sqrt{z} & -x & \lambda - y 
+\end{pmatrix} = \left( \oint_{\mathcal{C}} \frac{\sqrt{u^4 - 2u^2 \cos(2\phi) + 1}}{(u - u_0)^2} \mathrm{d}u \right) \cdot \mathrm{e}^{-\lambda^2} \\[18pt]
+\displaystyle\iint_{\mathcal{S}} \left( \nabla \times \vec{\mathbf{F}} \right) \cdot \vec{n} \, \mathrm{d}S = \sum_{m=1}^{\infty} \frac{(-1)^{m-1} \zeta(2m)}{m \cdot 4^m} \cdot \left(x^2 + y^2 + z^2\right)
+\end{cases}
+\]
+\begin{tasks}(2)
+\task \textbf{A.} $\lambda \in \left(-\infty; -\sqrt{3}\right) \cup \left(\sqrt{3}; +\infty\right)$
+\task \textbf{B.} $\lambda = \pm \sqrt{\dfrac{\pi^2}{6} + \gamma}$
+\task \textbf{C.} $\lambda \in (-1; 1) \setminus \{0\}$
+\task \textbf{D.} $\lambda = \dfrac{\sqrt{5} - 1}{2}$
+\end{tasks}
+
+\vspace{0.4cm}
+
+\noindent
+\begin{minipage}[t]{0.58\textwidth}
+\textbf{Câu 3 (Hình học không gian Oxyz & TikZ 3D):}\\
+Trong không gian tọa độ $Oxyz$, cho hình chóp $S.ABC$ có đáy $ABC$ là tam giác vuông cân tại $B$, $AB = BC = 2a$. Cạnh bên $SA \perp (ABC)$ và $SA = 2a\sqrt{2}$. Gọi $M$ là trung điểm cạnh $SC$ và $(\alpha)$ là mặt phẳng đi qua $A$, vuông góc với $SC$, cắt $SB, SC$ lần lượt tại $B', C'$. Mặt cầu $(\mathcal{S})$ nội tiếp tứ diện $S.AB'C'$ có tâm $I(x_0, y_0, z_0)$ và bán kính $R$. Tính tỷ số thể tích:
+\[
+\mathcal{V} = \frac{V_{S.AB'C'}}{V_{S.ABC}} \cdot \left( \frac{R}{a} \right)^3
+\]
+\begin{tasks}(2)
+\task \textbf{A.} $\mathcal{V} = \dfrac{2\sqrt{3} - 3}{18}$
+\task \textbf{B.} $\mathcal{V} = \dfrac{\sqrt{6} - 2}{12}$
+\task \textbf{C.} $\mathcal{V} = \dfrac{4\sqrt{2} - 5}{24}$
+\task \textbf{D.} $\mathcal{V} = \dfrac{3\sqrt{2} - 1}{36}$
+\end{tasks}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.40\textwidth}
+\vspace{0pt}
+\centering
+\begin{tikzpicture}[scale=0.85, line join=round, line cap=round, >=stealth]
+  % Định nghĩa toạ độ các đỉnh
+  \coordinate (A) at (0,0);
+  \coordinate (B) at (1.4,-1.3);
+  \coordinate (C) at (4.2,0);
+  \coordinate (S) at (0,3.6);
+  
+  % Điểm B' và C'
+  \coordinate (Bp) at (0.7, 1.15);
+  \coordinate (Cp) at (2.1, 1.8);
+  
+  % Vẽ nét đứt
+  \draw[dashed, thick] (A) -- (C);
+  \draw[dashed, thick] (A) -- (Bp);
+  \draw[dashed, thick] (A) -- (Cp);
+  \draw[dashed, thick] (Bp) -- (Cp);
+  
+  % Vẽ nét liền
+  \draw[thick] (S) -- (A) -- (B) -- (C) -- (S);
+  \draw[thick] (S) -- (B);
+  
+  % Điểm và nhãn
+  \fill (S) circle (1.5pt) node[above] {$S$};
+  \fill (A) circle (1.5pt) node[left] {$A$};
+  \fill (B) circle (1.5pt) node[below left] {$B$};
+  \fill (C) circle (1.5pt) node[right] {$C$};
+  \fill (Bp) circle (1.5pt) node[left] {$B'$};
+  \fill (Cp) circle (1.5pt) node[above right] {$C'$};
+  
+  % Góc vuông tại B và A
+  \draw (0,0.3) -- (0.3,0.3) -- (0.3,0);
+  \draw (1.2,-1.15) -- (1.35,-0.95) -- (1.55,-1.1);
+\end{tikzpicture}
+\end{minipage}
+
+\vspace{0.5cm}
+\begin{center}
+\textbf{--- HẾT ---}
+\end{center}
+
+\end{document}

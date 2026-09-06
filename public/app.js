@@ -61,14 +61,27 @@ function initElements() {
     // Standard Image Preview & Tools
     imagePreviewContainer: document.getElementById('imagePreviewContainer'),
     previewImg: document.getElementById('previewImg'),
+    quickCropBtn: document.getElementById('quickCropBtn'),
+    quickRotateBtn: document.getElementById('quickRotateBtn'),
+    quickDeleteBtn: document.getElementById('quickDeleteBtn'),
     imageToolsBar: document.getElementById('imageToolsBar'),
     cropToggleBtn: document.getElementById('cropToggleBtn'),
-    cropApplyBtn: document.getElementById('cropApplyBtn'),
-    cropCancelBtn: document.getElementById('cropCancelBtn'),
     rotateBtn: document.getElementById('rotateBtn'),
     clearImageBtn: document.getElementById('clearImageBtn'),
     samplePresetsContainer: document.getElementById('samplePresetsContainer'),
     customNotes: document.getElementById('customNotes'),
+
+    // Dedicated Crop Modal Elements
+    cropModal: document.getElementById('cropModal'),
+    cropModalImg: document.getElementById('cropModalImg'),
+    closeCropModalBtn: document.getElementById('closeCropModalBtn'),
+    cropCancelModalBtn: document.getElementById('cropCancelModalBtn'),
+    cropConfirmModalBtn: document.getElementById('cropConfirmModalBtn'),
+    cropZoomInBtn: document.getElementById('cropZoomInBtn'),
+    cropZoomOutBtn: document.getElementById('cropZoomOutBtn'),
+    cropRotateLeftBtn: document.getElementById('cropRotateLeftBtn'),
+    cropRotateRightBtn: document.getElementById('cropRotateRightBtn'),
+    cropResetBtn: document.getElementById('cropResetBtn'),
 
     // Pro PDF Viewer & Controls
     pdfViewerContainer: document.getElementById('pdfViewerContainer'),
@@ -253,7 +266,11 @@ function loadSettings() {
 
   renderApiKeyInputs(keys);
 
-  const savedModel = localStorage.getItem('math2latex_gemini_model') || 'gemini-3.7-flash';
+  let savedModel = localStorage.getItem('math2latex_gemini_model');
+  if (!savedModel || savedModel === 'gemini-3.7-flash') {
+    savedModel = 'gemini-3.8-flash';
+    localStorage.setItem('math2latex_gemini_model', 'gemini-3.8-flash');
+  }
   if (el.geminiModelSelect) el.geminiModelSelect.value = savedModel;
 }
 
@@ -355,7 +372,7 @@ function getSavedApiKeys() {
 
 function saveSettings() {
   const keys = getSavedApiKeys();
-  const geminiModel = el.geminiModelSelect?.value || 'gemini-3.7-flash';
+  const geminiModel = el.geminiModelSelect?.value || 'gemini-3.8-flash';
 
   localStorage.setItem('math2latex_gemini_keys', JSON.stringify(keys));
   localStorage.setItem('math2latex_gemini_key', keys[0] || '');
@@ -433,12 +450,49 @@ function setupEventListeners() {
     }
   });
 
-  // Image Manipulation Tools (Standard mode)
-  el.cropToggleBtn?.addEventListener('click', startCropping);
-  el.cropApplyBtn?.addEventListener('click', applyCrop);
-  el.cropCancelBtn?.addEventListener('click', cancelCrop);
+  // Image Manipulation Tools & Modal
+  el.cropToggleBtn?.addEventListener('click', openCropModal);
+  el.quickCropBtn?.addEventListener('click', openCropModal);
+  el.closeCropModalBtn?.addEventListener('click', closeCropModal);
+  el.cropCancelModalBtn?.addEventListener('click', closeCropModal);
+  el.cropConfirmModalBtn?.addEventListener('click', applyCropModal);
+  el.cropModal?.addEventListener('click', (e) => {
+    if (e.target === el.cropModal) closeCropModal();
+  });
+
+  el.cropZoomInBtn?.addEventListener('click', () => state.cropper?.zoom(0.1));
+  el.cropZoomOutBtn?.addEventListener('click', () => state.cropper?.zoom(-0.1));
+  el.cropRotateLeftBtn?.addEventListener('click', () => state.cropper?.rotate(-90));
+  el.cropRotateRightBtn?.addEventListener('click', () => state.cropper?.rotate(90));
+  el.cropResetBtn?.addEventListener('click', () => state.cropper?.reset());
+
+  window.addEventListener('keydown', (e) => {
+    const isCropModalOpen = el.cropModal && !el.cropModal.classList.contains('hidden');
+    if (isCropModalOpen) {
+      if (e.key === 'Escape') {
+        closeCropModal();
+      } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        applyCropModal();
+      }
+    } else {
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      const isTyping = activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable;
+      if (!isTyping && state.currentImageBase64) {
+        if (e.key === 'c' || e.key === 'C') {
+          e.preventDefault();
+          openCropModal();
+        } else if (e.key === 'r' || e.key === 'R') {
+          e.preventDefault();
+          rotateImage();
+        }
+      }
+    }
+  });
+
   el.rotateBtn?.addEventListener('click', rotateImage);
+  el.quickRotateBtn?.addEventListener('click', rotateImage);
   el.clearImageBtn?.addEventListener('click', clearLoadedMedia);
+  el.quickDeleteBtn?.addEventListener('click', clearLoadedMedia);
 
   // PDF Viewer Navigation (Pro mode)
   el.removePdfBtn?.addEventListener('click', clearLoadedMedia);
@@ -551,6 +605,7 @@ function renderMathToolbarSymbols() {
         delimiters: [
           { left: '$', right: '$', display: false }
         ],
+        macros: KATEX_MATH_MACROS,
         throwOnError: false
       });
     } catch (e) {
@@ -621,11 +676,11 @@ function processImageFile(file) {
   reader.readAsDataURL(file);
 }
 
-function setImageSrc(dataUrl) {
+function setImageSrc(dataUrl, showNotice = true) {
   state.currentImageBase64 = dataUrl;
   state.pdfDoc = null;
   state.pdfFile = null;
-  setFilePickerEnabled(true);
+  setFilePickerEnabled(false);
 
   el.previewImg.src = dataUrl;
   el.uploadPrompt?.classList.add('hidden');
@@ -636,11 +691,12 @@ function setImageSrc(dataUrl) {
   el.convertBtn?.classList.remove('hidden');
 
   if (state.cropper) {
-    state.cropper.destroy();
+    try { state.cropper.destroy(); } catch (_) {}
     state.cropper = null;
   }
-  resetCropUI();
-  showToast('Đã nạp ảnh bài toán.', 'info');
+  if (showNotice) {
+    showToast('Đã nạp ảnh bài toán.', 'info');
+  }
 }
 
 // ==========================================================================
@@ -746,48 +802,106 @@ async function getPdfPageDataUrl(pageNum, scale = 2.4) {
 }
 
 // ==========================================================================
-// Image Manipulation (Crop & Rotate)
+// Image Manipulation (Modal-based High-Precision Crop & Rotate)
 // ==========================================================================
-function startCropping() {
-  if (state.cropper) return;
-  state.cropper = new Cropper(el.previewImg, {
-    viewMode: 1,
-    autoCropArea: 0.9,
-    responsive: true,
-    background: false
-  });
+function openCropModal() {
+  if (!state.currentImageBase64) {
+    showToast('Vui lòng tải hoặc dán ảnh đề toán trước khi cắt!', 'error');
+    return;
+  }
 
-  el.cropToggleBtn?.classList.add('hidden');
-  el.cropApplyBtn?.classList.remove('hidden');
-  el.cropCancelBtn?.classList.remove('hidden');
-}
+  if (typeof Cropper === 'undefined') {
+    showToast('Thư viện cắt ảnh chưa sẵn sàng, vui lòng thử lại sau giây lát!', 'error');
+    return;
+  }
 
-function applyCrop() {
-  if (!state.cropper) return;
-  const croppedCanvas = state.cropper.getCroppedCanvas({
-    maxWidth: 2048,
-    maxHeight: 2048
-  });
-  const croppedDataUrl = croppedCanvas.toDataURL('image/jpeg', 0.95);
-  state.cropper.destroy();
-  state.cropper = null;
-
-  setImageSrc(croppedDataUrl);
-  showToast('Đã cắt vùng chọn bài toán!', 'success');
-}
-
-function cancelCrop() {
+  // Destroy previous cropper instance cleanly if any
   if (state.cropper) {
-    state.cropper.destroy();
+    try { state.cropper.destroy(); } catch (_) {}
     state.cropper = null;
   }
-  resetCropUI();
+
+  const modal = el.cropModal;
+  const cropImg = el.cropModalImg;
+  if (!modal || !cropImg) return;
+
+  modal.classList.remove('hidden');
+
+  const initCropper = () => {
+    if (state.cropper) {
+      try { state.cropper.destroy(); } catch (_) {}
+    }
+    try {
+      state.cropper = new Cropper(cropImg, {
+        viewMode: 1,
+        dragMode: 'crop',
+        initialAspectRatio: NaN,
+        autoCropArea: 0.88,
+        responsive: true,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: true,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        background: true,
+        checkCrossOrigin: false
+      });
+    } catch (err) {
+      console.error('Cropper init error:', err);
+      showToast('Lỗi khi mở công cụ cắt ảnh: ' + (err.message || ''), 'error');
+    }
+  };
+
+  cropImg.onload = () => {
+    initCropper();
+  };
+
+  cropImg.src = state.currentImageBase64;
+  if (cropImg.complete && cropImg.naturalWidth > 0) {
+    initCropper();
+  }
 }
 
-function resetCropUI() {
-  el.cropToggleBtn?.classList.remove('hidden');
-  el.cropApplyBtn?.classList.add('hidden');
-  el.cropCancelBtn?.classList.add('hidden');
+function closeCropModal() {
+  if (state.cropper) {
+    try { state.cropper.destroy(); } catch (_) {}
+    state.cropper = null;
+  }
+  if (el.cropModalImg) {
+    el.cropModalImg.onload = null;
+    el.cropModalImg.src = '';
+  }
+  el.cropModal?.classList.add('hidden');
+}
+
+function applyCropModal() {
+  if (!state.cropper) {
+    closeCropModal();
+    return;
+  }
+
+  try {
+    const croppedCanvas = state.cropper.getCroppedCanvas({
+      maxWidth: 4096,
+      maxHeight: 4096,
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high'
+    });
+
+    if (!croppedCanvas) {
+      showToast('Không thể tạo vùng cắt. Hãy thử khoanh lại vùng chọn!', 'error');
+      return;
+    }
+
+    const croppedDataUrl = croppedCanvas.toDataURL('image/jpeg', 0.95);
+    closeCropModal();
+    setImageSrc(croppedDataUrl, false);
+    showToast('Đã cắt vùng chọn bài toán thành công!', 'success');
+  } catch (err) {
+    console.error('Crop execution error:', err);
+    showToast('Lỗi khi áp dụng cắt ảnh: ' + (err.message || ''), 'error');
+  }
 }
 
 function rotateImage() {
@@ -801,16 +915,18 @@ function rotateImage() {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((90 * Math.PI) / 180);
     ctx.drawImage(img, -img.width / 2, -img.height / 2);
-    setImageSrc(canvas.toDataURL('image/jpeg', 0.95));
+    setImageSrc(canvas.toDataURL('image/jpeg', 0.95), false);
+    showToast('Đã xoay ảnh 90°!', 'info');
   };
   img.src = state.currentImageBase64;
 }
 
 function clearLoadedMedia() {
   if (state.cropper) {
-    state.cropper.destroy();
+    try { state.cropper.destroy(); } catch (_) {}
     state.cropper = null;
   }
+  closeCropModal();
   state.currentImageBase64 = null;
   state.pdfDoc = null;
   state.pdfFile = null;
@@ -824,7 +940,6 @@ function clearLoadedMedia() {
   el.pdfViewerContainer?.classList.add('hidden');
   el.pdfViewerContainer?.classList.remove('flex');
   el.convertBtn?.classList.remove('hidden');
-  resetCropUI();
 
   if (progressRAF) {
     cancelAnimationFrame(progressRAF);
@@ -963,7 +1078,7 @@ async function callConvertApi(base64Image, isFullDoc = true, customNotes = '') {
     keys.unshift(legacyKey);
   }
   const primaryKey = keys[0] || legacyKey || '';
-  const geminiModel = localStorage.getItem('math2latex_gemini_model') || 'gemini-3.7-flash';
+  const geminiModel = localStorage.getItem('math2latex_gemini_model') || 'gemini-3.8-flash';
 
   const response = await fetch('/api/convert', {
     method: 'POST',
@@ -983,7 +1098,7 @@ async function callConvertApi(base64Image, isFullDoc = true, customNotes = '') {
     throw new Error(data.error || 'Lỗi không xác định khi chuyển đổi.');
   }
 
-  if (data.switchedKey && data.fallbackNotice) {
+  if (data.fallbackNotice) {
     showToast(data.fallbackNotice, 'info');
   }
 
@@ -1218,7 +1333,338 @@ function insertLatexAtCursor(snippet) {
   renderLatexPreview();
 }
 
-// Live KaTeX & Document Rendering Engine
+// ==========================================================================
+// Elite KaTeX & Vietnamese Math Exam Live Preview Engine
+// ==========================================================================
+
+const KATEX_MATH_MACROS = {
+  '\\heva': '\\begin{cases} #1 \\end{cases}',
+  '\\hoac': '\\left[\\begin{array}{l} #1 \\end{array}\\right.',
+  '\\degree': '^\\circ',
+  '\\dotEX': '.',
+  '\\R': '\\mathbb{R}',
+  '\\N': '\\mathbb{N}',
+  '\\Z': '\\mathbb{Z}',
+  '\\Q': '\\mathbb{Q}',
+  '\\C': '\\mathbb{C}',
+  '\\d': '\\mathrm{d}',
+  '\\e': '\\mathrm{e}',
+  '\\i': '\\mathrm{i}',
+  '\\dx': '\\,\\mathrm{d}x',
+  '\\dt': '\\,\\mathrm{d}t',
+  '\\dy': '\\,\\mathrm{d}y',
+  '\\dz': '\\,\\mathrm{d}z',
+  '\\dfrac': '\\frac',
+  '\\cfrac': '\\frac',
+  '\\vec': '\\mathbf',
+  '\\vect': '\\overrightarrow{#1}',
+  '\\widecheck': '#1',
+  '\\widehat': '#1',
+  '\\overparen': '#1',
+  '\\parallel': '\\mathrel{/\\!/}',
+  '\\perp': '\\bot',
+  '\\arcsin': '\\operatorname{arcsin}',
+  '\\arccos': '\\operatorname{arccos}',
+  '\\arctan': '\\operatorname{arctan}',
+  '\\arccot': '\\operatorname{arccot}',
+  '\\cot': '\\operatorname{cot}',
+  '\\tan': '\\operatorname{tan}',
+  '\\tg': '\\operatorname{tan}',
+  '\\ctg': '\\operatorname{cot}',
+  '\\gcd': '\\operatorname{gcd}',
+  '\\lcm': '\\operatorname{lcm}'
+};
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Intelligent LaTeX parser specifically designed for Vietnamese Math Exam structure
+ */
+function parseLatexToHtml(latex, context = null) {
+  if (!latex || !latex.trim()) return '';
+
+  const isTopLevel = !context;
+  const ctx = context || { mathStore: [], tikzStore: [] };
+
+  let text = latex;
+
+  // 1. Extract Body (between \begin{document} and \end{document} if present)
+  if (isTopLevel) {
+    const docMatch = text.match(/\\begin\{document\}([\s\S]*?)\\end\{document\}/i);
+    if (docMatch) {
+      text = docMatch[1];
+    } else {
+      text = text.replace(/^\\documentclass[\s\S]*?(?=\\section|\\begin|\\textbf|Câu|[^\\]*\b[a-zA-Z])/i, '');
+    }
+    // Strip comments
+    text = text.replace(/(^|[^\\])%.*$/gm, '$1');
+  }
+
+  function saveMath(content, isDisplay = false) {
+    const id = ctx.mathStore.length;
+    ctx.mathStore.push({ content: content.trim(), isDisplay });
+    return `___MATH_BLOCK_${id}___`;
+  }
+
+  function saveTikz(tikzCode) {
+    const id = ctx.tikzStore.length;
+    ctx.tikzStore.push(tikzCode);
+    return `___TIKZ_BLOCK_${id}___`;
+  }
+
+  // 2. Protect TikZ Environments
+  text = text.replace(/\\begin\{tikzpicture\}(?:\[[\s\S]*?\])?([\s\S]*?)\\end\{tikzpicture\}/gi, (fullMatch) => {
+    return saveTikz(fullMatch);
+  });
+
+  // 3. Protect Math display environments
+  const displayEnvs = ['align\\*?', 'gather\\*?', 'equation\\*?', 'multline\\*?'];
+  displayEnvs.forEach(env => {
+    const reg = new RegExp(`\\\\begin\\{${env}\\}([\\s\\S]*?)\\\\end\\{${env}\\}`, 'gi');
+    text = text.replace(reg, (match) => saveMath(match, true));
+  });
+
+  // Protect standard display math $$...$$ and \[...\]
+  text = text.replace(/\$\$([\s\S]*?)\$\$/g, (match, inner) => saveMath(inner, true));
+  text = text.replace(/\\\[([\s\S]*?)\\\]/g, (match, inner) => saveMath(inner, true));
+
+  // Protect inline math $...$ and \(...\)
+  text = text.replace(/(?<!\\)\$((?:\\\$|[^\$])+)\$/g, (match, inner) => saveMath(inner, false));
+  text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, inner) => saveMath(inner, false));
+
+  // 4. Parse \begin{minipage} side-by-side structures
+  text = text.replace(/(\\begin\{minipage\}(?:\[.*?\])?\{([0-9.]+)\\(?:textwidth|linewidth|columnwidth)\}[\s\S]*?\\end\{minipage\}(?:\s*%?\s*\\hfill\s*%?\s*\\begin\{minipage\}(?:\[.*?\])?\{([0-9.]+)\\(?:textwidth|linewidth|columnwidth)\}[\s\S]*?\\end\{minipage\})?)/gi, (fullMatch) => {
+    const minipages = [];
+    const mpRegex = /\\begin\{minipage\}(?:\[.*?\])?\{([0-9.]+)\\(?:textwidth|linewidth|columnwidth)\}([\s\S]*?)\\end\{minipage\}/gi;
+    let m;
+    while ((m = mpRegex.exec(fullMatch)) !== null) {
+      const widthPercent = Math.round(parseFloat(m[1]) * 100) || 50;
+      minipages.push({ width: widthPercent, content: m[2].trim() });
+    }
+
+    if (minipages.length >= 2) {
+      return `<div class="exam-row flex flex-col md:flex-row gap-4 items-start my-3">` +
+        minipages.map(mp => `<div class="exam-col flex-1 min-w-0" style="flex: 0 0 ${mp.width}%; max-width: 100%;">${parseLatexToHtml(mp.content, ctx)}</div>`).join('') +
+        `</div>`;
+    } else if (minipages.length === 1) {
+      return `<div class="exam-col my-2" style="max-width: ${minipages[0].width}%;">${parseLatexToHtml(minipages[0].content, ctx)}</div>`;
+    }
+    return fullMatch;
+  });
+
+  // 5. Parse \begin{tasks}(N) ... \end{tasks}
+  text = text.replace(/\\begin\{tasks\}(?:\[.*?\])?(?:\((\d+)\))?([\s\S]*?)\\end\{tasks\}/gi, (match, colCountStr, body) => {
+    const cols = parseInt(colCountStr, 10) || 4;
+    const taskItems = body.split(/\\task\s*/).filter(item => item.trim().length > 0);
+
+    const itemsHtml = taskItems.map(item => {
+      let parsedItem = item.trim();
+      parsedItem = parsedItem.replace(/^\\textbf\{([A-D]\.?)\}/i, '<strong class="text-pen mr-1">$1</strong>');
+      parsedItem = parsedItem.replace(/^([A-D]\.)\s*/i, '<strong class="text-pen mr-1">$1</strong>');
+      return `<div class="choice-item">${parsedItem}</div>`;
+    }).join('');
+
+    return `<div class="choice-grid choice-grid-${cols}">${itemsHtml}</div>`;
+  });
+
+  // 6. Parse \begin{tabular}{...} ... \end{tabular}
+  text = text.replace(/\\begin\{tabular\}(?:\{[^\}]*\})?([\s\S]*?)\\end\{tabular\}/gi, (match, body) => {
+    const rawRows = body.split(/\\\\/).map(r => r.trim()).filter(r => r.length > 0);
+    const tableRows = rawRows.map(row => {
+      let cleanRow = row
+        .replace(/\\hline/g, '')
+        .replace(/\\toprule/g, '')
+        .replace(/\\midrule/g, '')
+        .replace(/\\bottomrule/g, '')
+        .replace(/\\cline\{[^\}]*\}/g, '')
+        .trim();
+      if (!cleanRow) return '';
+      const cells = cleanRow.split('&').map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).filter(r => r.length > 0).join('');
+
+    return `<div class="latex-table-container my-3"><table class="latex-table"><tbody>${tableRows}</tbody></table></div>`;
+  });
+
+  // 7. Parse \begin{center} ... \end{center}
+  text = text.replace(/\\begin\{center\}([\s\S]*?)\\end\{center\}/gi, (match, content) => {
+    return `<div class="text-center my-3">${content.trim()}</div>`;
+  });
+
+  // 8. Parse \begin{enumerate} and \begin{itemize}
+  text = text.replace(/\\begin\{enumerate\}(?:\[.*?\])?([\s\S]*?)\\end\{enumerate\}/gi, (match, content) => {
+    const items = content.split(/\\item\s*/).filter(i => i.trim().length > 0);
+    return `<ol class="exam-list exam-enum">${items.map(i => `<li>${i.trim()}</li>`).join('')}</ol>`;
+  });
+  text = text.replace(/\\begin\{itemize\}(?:\[.*?\])?([\s\S]*?)\\end\{itemize\}/gi, (match, content) => {
+    const items = content.split(/\\item\s*/).filter(i => i.trim().length > 0);
+    return `<ul class="exam-list exam-item">${items.map(i => `<li>${i.trim()}</li>`).join('')}</ul>`;
+  });
+
+  // 9. Headers & Sectioning
+  text = text.replace(/\\section\*?\{([^}]+)\}/g, '<h2 class="exam-section-title">$1</h2>');
+  text = text.replace(/\\subsection\*?\{([^}]+)\}/g, '<h3 class="exam-subsection-title">$1</h3>');
+  text = text.replace(/\\subsubsection\*?\{([^}]+)\}/g, '<h4 class="font-bold text-sm text-pen-600 mt-2 mb-1">$1</h4>');
+
+  // Question headers (Câu 1., Câu 2:, Bài 1., Phần I...)
+  text = text.replace(/\\textbf\{(Câu\s*\d+[^}]*)\}/gi, '<strong class="text-pen font-bold mr-1">$1</strong>');
+  text = text.replace(/\\textbf\{(Bài\s*\d+[^}]*)\}/gi, '<strong class="text-pen font-bold mr-1">$1</strong>');
+  text = text.replace(/\\textbf\{(Phần\s+[IVX\d]+[^}]*)\}/gi, '<strong class="text-pen font-bold block text-base my-2">$1</strong>');
+
+  // 10. Standard LaTeX Typography & Formatting
+  text = text
+    .replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>')
+    .replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>')
+    .replace(/\\underline\{([^}]+)\}/g, '<u>$1</u>')
+    .replace(/\\emph\{([^}]+)\}/g, '<em>$1</em>')
+    .replace(/\\textsf\{([^}]+)\}/g, '<span class="font-sans">$1</span>')
+    .replace(/\\texttt\{([^}]+)\}/g, '<code class="font-mono text-xs bg-black/5 px-1 py-0.5 rounded">$1</code>')
+    .replace(/\\textcolor\{([^}]+)\}\{([^}]+)\}/g, '<span style="color: $1">$2</span>')
+    .replace(/\\noindent/g, '')
+    .replace(/\\centering/g, '')
+    .replace(/\\vspace\*?\{[^}]*\}/g, '<div class="h-2"></div>')
+    .replace(/\\hspace\*?\{[^}]*\}/g, '&nbsp;&nbsp;')
+    .replace(/\\quad/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
+    .replace(/\\qquad/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
+    .replace(/~/g, '&nbsp;')
+    .replace(/\\hrule/g, '<hr class="my-3 border-paper-line">')
+    .replace(/\\rule\{[^}]*\}\{[^}]*\}/g, '<hr class="my-3 border-paper-line">')
+    .replace(/\\newpage|\\clearpage/g, '<div class="page-break-line my-6 text-center text-xs text-pen/60 font-mono flex items-center gap-3"><div class="flex-1 border-b border-dashed border-pen/30"></div><span><i class="fa-solid fa-file-lines"></i> Trang Mới</span><div class="flex-1 border-b border-dashed border-pen/30"></div></div>')
+    .replace(/\\%/g, '%')
+    .replace(/\\&/g, '&')
+    .replace(/\\_/g, '_')
+    .replace(/\\#/g, '#')
+    .replace(/\\\$/g, '$');
+
+  // Paragraph & Line-break Formatting
+  const paragraphs = text.split(/\n\s*\n+/);
+  text = paragraphs.map(p => {
+    let clean = p.trim();
+    if (!clean) return '';
+    clean = clean.replace(/\\\\/g, '<br>').replace(/\n/g, '<br>');
+    return `<div class="mb-2.5">${clean}</div>`;
+  }).filter(p => p.length > 0).join('');
+
+  // 11. Only Top Level restores TikZ and Math blocks
+  if (isTopLevel) {
+    // Restore TikZ blocks
+    text = text.replace(/___TIKZ_BLOCK_(\d+)___/g, (match, idStr) => {
+      const id = parseInt(idStr, 10);
+      const tikzCode = ctx.tikzStore[id] || '';
+
+      let typeName = 'Hình vẽ TikZ';
+      let iconClass = 'fa-solid fa-bezier-curve';
+
+      if (/tkzTab|\\tkzTabInit/i.test(tikzCode) || (/f'\(x\)/i.test(tikzCode) && /f\(x\)/i.test(tikzCode))) {
+        typeName = 'Bảng biến thiên (TikZ)';
+        iconClass = 'fa-solid fa-table-cells';
+      } else if (/plot|domain|axis|tikzpicture.*scale/i.test(tikzCode) && /->|node.*x|node.*y/i.test(tikzCode)) {
+        typeName = 'Đồ thị hàm số (TikZ)';
+        iconClass = 'fa-solid fa-chart-line';
+      } else if (/dashed|coordinate|\\draw.*node/i.test(tikzCode)) {
+        typeName = 'Hình học phẳng / Không gian (TikZ)';
+        iconClass = 'fa-solid fa-shapes';
+      }
+
+      return `
+        <div class="tikz-figure-box my-3">
+          <div class="flex items-center justify-between gap-2 pb-2 border-b border-paper-line">
+            <span class="tikz-badge">
+              <i class="${iconClass}"></i> ${typeName}
+            </span>
+            <button type="button" class="tikz-toggle-btn" data-tikz-id="${id}">
+              <i class="fa-solid fa-code"></i> Xem mã TikZ
+            </button>
+          </div>
+          <div class="tikz-visual-card">
+            <div class="w-10 h-10 rounded-full bg-pen/10 flex items-center justify-center text-pen text-base mb-1.5">
+              <i class="${iconClass}"></i>
+            </div>
+            <div class="text-xs font-semibold text-paper-ink">${typeName}</div>
+            <div class="text-[11px] text-paper-ink/60 mt-0.5">Mã nguồn TikZ chuẩn LaTeX (Sẵn sàng biên dịch trên Overleaf)</div>
+          </div>
+          <div class="tikz-code-drawer hidden mt-2 pt-2 border-t border-dashed border-paper-line" id="tikz_drawer_${id}">
+            <pre class="font-mono text-[11px] p-2.5 rounded bg-black/5 overflow-x-auto whitespace-pre leading-relaxed text-paper-ink">${escapeHtml(tikzCode)}</pre>
+          </div>
+        </div>
+      `;
+    });
+
+    // Restore Math blocks
+    text = text.replace(/___MATH_BLOCK_(\d+)___/g, (match, idStr) => {
+      const id = parseInt(idStr, 10);
+      const item = ctx.mathStore[id];
+      if (!item) return '';
+      if (item.isDisplay) {
+        return `$$${item.content}$$`;
+      } else {
+        return `$${item.content}$`;
+      }
+    });
+  }
+
+  return text;
+}
+
+/**
+ * Executes KaTeX typesetting on a target container with custom Vietnamese macros
+ */
+function renderMathWithKaTeX(container) {
+  if (!container || !window.renderMathInElement) return;
+
+  try {
+    window.renderMathInElement(container, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '\\[', right: '\\]', display: true },
+        { left: '$', right: '$', display: false },
+        { left: '\\(', right: '\\)', display: false }
+      ],
+      macros: KATEX_MATH_MACROS,
+      throwOnError: false,
+      errorColor: '#C0392B'
+    });
+  } catch (err) {
+    console.warn('KaTeX typeset warning:', err);
+  }
+}
+
+/**
+ * Attaches interactive toggle handlers for TikZ cards
+ */
+function attachPreviewInteractions(container) {
+  if (!container) return;
+  const toggleBtns = container.querySelectorAll('.tikz-toggle-btn');
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute('data-tikz-id');
+      const drawer = container.querySelector(`#tikz_drawer_${id}`);
+      if (drawer) {
+        const isHidden = drawer.classList.contains('hidden');
+        if (isHidden) {
+          drawer.classList.remove('hidden');
+          btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Ẩn mã TikZ';
+        } else {
+          drawer.classList.add('hidden');
+          btn.innerHTML = '<i class="fa-solid fa-code"></i> Xem mã TikZ';
+        }
+      }
+    });
+  });
+}
+
+/**
+ * Top-level Preview Renderer — invoked when LaTeX changes or on mode switch
+ */
 function renderLatexPreview() {
   if (!el.renderOutput) return;
   const rawLatex = el.latexEditor?.value.trim() || '';
@@ -1232,62 +1678,21 @@ function renderLatexPreview() {
     return;
   }
 
-  // Extract body between \begin{document} and \end{document}
-  let bodyContent = rawLatex;
-  const docMatch = rawLatex.match(/\\begin\{document\}([\s\S]*?)\\end\{document\}/i);
-  if (docMatch) {
-    bodyContent = docMatch[1];
-  }
-
-  // Clean LaTeX comments
-  bodyContent = bodyContent.replace(/(^|[^\\])%.*$/gm, '$1');
-
-  // Convert standard LaTeX formatting to clean HTML tags
-  let html = bodyContent
-    // Bold / Italic / Underline
-    .replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>')
-    .replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>')
-    .replace(/\\underline\{([^}]+)\}/g, '<u>$1</u>')
-    // Section headers
-    .replace(/\\section\*?\{([^}]+)\}/g, '<h2 class="text-xl font-bold mt-4 mb-2 text-pen border-b pb-1">$1</h2>')
-    .replace(/\\subsection\*?\{([^}]+)\}/g, '<h3 class="text-lg font-bold mt-3 mb-1 text-pen-600">$1</h3>')
-    // Question Cards (Câu X.)
-    .replace(/<strong>(Câu\s*\d+[^<]*)<\/strong>/gi, '<div class="question-card"><strong class="text-pen">$1</strong>')
-    // Task lists / Choices
-    .replace(/\\begin\{tasks\}\(?\d*\)?/g, '<div class="choice-grid">')
-    .replace(/\\end\{tasks\}/g, '</div></div>')
-    .replace(/\\task/g, '<div class="choice-item">')
-    // Lists
-    .replace(/\\begin\{enumerate\}(\[[^\]]*\])?/g, '<ol class="list-decimal list-inside my-2 space-y-1">')
-    .replace(/\\end\{enumerate\}/g, '</ol>')
-    .replace(/\\begin\{itemize\}/g, '<ul class="list-disc list-inside my-2 space-y-1">')
-    .replace(/\\end\{itemize\}/g, '</ul>')
-    .replace(/\\item\s*/g, '<li>')
-    // Spacing
-    .replace(/\\newpage/g, '<hr class="my-6 border-pen/20 border-dashed">')
-    .replace(/\\quad/g, '&nbsp;&nbsp;&nbsp;&nbsp;')
-    .replace(/\\qquad/g, '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
-    .replace(/\\\\/g, '<br>')
-    .replace(/\n\n+/g, '</p><p class="mb-3">');
-
-  html = `<p class="mb-3">${html}</p>`;
-  el.renderOutput.innerHTML = html;
-
-  // Run KaTeX Auto-Render
-  if (window.renderMathInElement) {
-    try {
-      window.renderMathInElement(el.renderOutput, {
-        delimiters: [
-          { left: '$$', right: '$$', display: true },
-          { left: '\\[', right: '\\]', display: true },
-          { left: '$', right: '$', display: false },
-          { left: '\\(', right: '\\)', display: false }
-        ],
-        throwOnError: false
-      });
-    } catch (e) {
-      console.warn('KaTeX rendering notice:', e);
-    }
+  try {
+    const html = parseLatexToHtml(rawLatex);
+    el.renderOutput.innerHTML = html;
+    attachPreviewInteractions(el.renderOutput);
+    renderMathWithKaTeX(el.renderOutput);
+  } catch (err) {
+    console.error('Error rendering LaTeX preview:', err);
+    el.renderOutput.innerHTML = `
+      <div class="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-xs leading-relaxed">
+        <div class="font-bold flex items-center gap-2 mb-1 text-sm">
+          <i class="fa-solid fa-triangle-exclamation text-pen"></i> Lỗi kết xuất xem trước
+        </div>
+        <p>${escapeHtml(err.message)}</p>
+      </div>
+    `;
   }
 }
 

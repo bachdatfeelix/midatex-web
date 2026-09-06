@@ -7,8 +7,8 @@
 ## ✨ Tính năng nổi bật
 
 1. **Nhận diện Toán học thông minh (Google Gemini AI Vision)**:
-   - ⚡ **Google Gemini 2.5 Flash / 3.7 Flash**: Nhận diện chính xác 100% tiếng Việt, câu hỏi trắc nghiệm A/B/C/D, ma trận, tích phân, giới hạn, căn thức, bảng biến thiên và hình vẽ TikZ.
-   - 🔄 **Cơ chế Multi-Key Self-Healing**: Tự động chuyển đổi giữa các API Key dự phòng khi gặp giới hạn hạn ngạch (Rate Limit).
+   - ⚡ **Google Gemini 3.8 Flash / 3.7 Flash / 3.1 Pro**: Nhận diện chính xác 100% tiếng Việt, câu hỏi trắc nghiệm A/B/C/D, ma trận, tích phân, giới hạn, căn thức, bảng biến thiên và hình vẽ TikZ.
+   - 🔄 **Cơ chế Multi-Model & Multi-Key Self-Healing**: Tự động thử `gemini-3.8-flash` -> `gemini-3.7-flash` -> `gemini-3.1-pro`... và tự luân chuyển giữa các API Key dự phòng khi gặp giới hạn hạn ngạch (Rate Limit/Quota).
 
 2. **Công cụ xử lý ảnh chuyên sâu**:
    - ✂️ **Cắt vùng chọn (Cropper.js)**: Dễ dàng khoanh vùng 1 câu hỏi hoặc 1 công thức cụ thể trong đề thi nhiều trang.
@@ -48,4 +48,4 @@ Sau đó truy cập: [http://localhost:3000](http://localhost:3000)
 ## 🔑 Cấu hình API Key (Miễn phí 100%)
 - Bạn có thể lấy API Key miễn phí từ Google AI Studio tại: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 - Nhập API Key trực tiếp vào mục **"Cấu hình API"** trên giao diện web (được lưu an toàn trong máy bạn), hoặc điền vào file `.env` (`GEMINI_API_KEY=AIzaSy...`).
-- Hỗ trợ các model Vision hàng đầu: Gemini 2.5 Flash, Gemini 3.7 Flash, Gemini 1.5 Flash.
+- Hỗ trợ các model Vision hàng đầu: Gemini 3.8 Flash (Mặc định), Gemini 3.7 Flash, Gemini 3.1 Pro, Gemini 2.5 Pro/Flash, Gemini 1.5 Pro/Flash.
