@@ -14,6 +14,7 @@ const state = {
   fontSize: 16.5,
   isConverting: false,
   theme: localStorage.getItem('math2latex_theme') || 'dark',
+  mobileView: 'source', // 'source' | 'code' | 'preview'
 
   // PDF.js State for Pro Mode
   pdfDoc: null,
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   setupEventListeners();
   applyModeUI();
+  initMobileView();
   updateWorkspaceView();
   updateApiStatusIndicator();
   renderMathToolbarSymbols();
@@ -49,6 +51,15 @@ function initElements() {
     pasteHintChip: document.getElementById('pasteHintChip'),
     docTypeSelect: document.getElementById('docTypeSelect'),
     apiStatusDot: document.getElementById('apiStatusDot'),
+
+    // Mobile View Navigation
+    mobileViewNav: document.getElementById('mobileViewNav'),
+    mobileNavSourceBtn: document.getElementById('mobileNavSourceBtn'),
+    mobileNavCodeBtn: document.getElementById('mobileNavCodeBtn'),
+    mobileNavPreviewBtn: document.getElementById('mobileNavPreviewBtn'),
+    mobileCodeBadge: document.getElementById('mobileCodeBadge'),
+    leftPanel: document.getElementById('leftPanel'),
+    rightPanel: document.getElementById('rightPanel'),
 
     // Dropzone & File Input
     dropZone: document.getElementById('dropZone'),
@@ -240,6 +251,53 @@ function setFilePickerEnabled(isEnabled) {
 }
 
 // ==========================================================================
+// Mobile Segmented View Controller (< 1024px)
+// ==========================================================================
+function initMobileView() {
+  if (window.innerWidth < 1024) {
+    setMobileView(state.mobileView || 'source');
+  }
+}
+
+function setMobileView(view) {
+  state.mobileView = view;
+  const isMobile = window.innerWidth < 1024;
+
+  [el.mobileNavSourceBtn, el.mobileNavCodeBtn, el.mobileNavPreviewBtn].forEach(b => b?.classList.remove('active'));
+
+  if (view === 'source') {
+    el.mobileNavSourceBtn?.classList.add('active');
+    if (isMobile) {
+      el.leftPanel?.classList.remove('hidden');
+      el.rightPanel?.classList.add('hidden');
+    }
+  } else if (view === 'code') {
+    el.mobileNavCodeBtn?.classList.add('active');
+    if (isMobile) {
+      el.leftPanel?.classList.add('hidden');
+      el.rightPanel?.classList.remove('hidden');
+    }
+    switchTab('code');
+  } else if (view === 'preview') {
+    el.mobileNavPreviewBtn?.classList.add('active');
+    if (isMobile) {
+      el.leftPanel?.classList.add('hidden');
+      el.rightPanel?.classList.remove('hidden');
+    }
+    switchTab('preview');
+  }
+}
+
+function handleWindowResize() {
+  if (window.innerWidth >= 1024) {
+    el.leftPanel?.classList.remove('hidden');
+    el.rightPanel?.classList.remove('hidden');
+  } else {
+    setMobileView(state.mobileView || 'source');
+  }
+}
+
+// ==========================================================================
 // Settings Modal & Dynamic Multi-API Key Management
 // ==========================================================================
 function loadSettings() {
@@ -291,11 +349,12 @@ function addApiKeyRow(value = '', index = 0, totalCount = 1) {
   row.className = 'api-key-row flex items-center gap-2 p-1.5 rounded-lg';
 
   const isPrimary = index === 0;
-  const badgeClass = isPrimary ? 'key-badge key-badge-primary' : 'key-badge key-badge-backup';
-  const badgeText = isPrimary ? 'Key #1 (Chính)' : `Key #${index + 1} (Dự phòng)`;
+  const badgeClass = isPrimary ? 'key-badge key-badge-primary text-[10px]' : 'key-badge key-badge-backup text-[10px]';
+  const badgeFull = isPrimary ? 'Key #1 (Chính)' : `Key #${index + 1} (Dự phòng)`;
+  const badgeShort = `#${index + 1}`;
 
   row.innerHTML = `
-    <span class="${badgeClass}">${badgeText}</span>
+    <span class="${badgeClass}"><span class="sm:hidden">${badgeShort}</span><span class="hidden sm:inline">${badgeFull}</span></span>
     <div class="relative flex-1">
       <input type="password" class="gemini-key-input field font-mono pr-8 text-xs py-1.5" placeholder="${isPrimary ? 'AIzaSy... (Khóa chính)' : 'AIzaSy... hoặc AQ.Ab8... (Khóa dự phòng)'}" value="${value || ''}">
       <button type="button" class="toggle-pwd-btn absolute right-2 top-1/2 -translate-y-1/2 text-chalk-faint hover:text-gold text-xs transition-colors" title="Hiện/Ẩn Key">
@@ -345,8 +404,9 @@ function reindexApiKeyRows() {
     const delBtn = r.querySelector('.delete-key-btn');
 
     if (badge) {
-      badge.className = isPrimary ? 'key-badge key-badge-primary' : 'key-badge key-badge-backup';
-      badge.textContent = isPrimary ? 'Key #1 (Chính)' : `Key #${idx + 1} (Dự phòng)`;
+      badge.className = isPrimary ? 'key-badge key-badge-primary text-[10px]' : 'key-badge key-badge-backup text-[10px]';
+      const label = isPrimary ? 'Key #1 (Chính)' : `Key #${idx + 1} (Dự phòng)`;
+      badge.innerHTML = `<span class="sm:hidden">#${idx + 1}</span><span class="hidden sm:inline">${label}</span>`;
     }
 
     if (delBtn) {
@@ -404,6 +464,12 @@ function updateApiStatusIndicator() {
 // Setup Event Listeners
 // ==========================================================================
 function setupEventListeners() {
+  // Mobile Navigation Switcher
+  el.mobileNavSourceBtn?.addEventListener('click', () => setMobileView('source'));
+  el.mobileNavCodeBtn?.addEventListener('click', () => setMobileView('code'));
+  el.mobileNavPreviewBtn?.addEventListener('click', () => setMobileView('preview'));
+  window.addEventListener('resize', handleWindowResize);
+
   // Mode Switcher
   el.modeStandardBtn?.addEventListener('click', () => setMode('standard'));
   el.modeProBtn?.addEventListener('click', () => setMode('pro'));
@@ -845,7 +911,10 @@ function openCropModal() {
         cropBoxMovable: true,
         cropBoxResizable: true,
         background: true,
-        checkCrossOrigin: false
+        checkCrossOrigin: false,
+        touchDragZoom: true,
+        minCropBoxWidth: 20,
+        minCropBoxHeight: 20
       });
     } catch (err) {
       console.error('Cropper init error:', err);
@@ -1129,6 +1198,9 @@ async function handleConvert() {
 
     finishProgress(true, 'Chuyển đổi sang LaTeX hoàn tất 100%!');
     showToast('Chuyển đổi sang LaTeX thành công!', 'success');
+    if (window.innerWidth < 1024) {
+      setMobileView('preview');
+    }
   } catch (error) {
     console.error('Conversion error:', error);
     finishProgress(false, error.message || 'Chuyển đổi thất bại');
@@ -1170,6 +1242,9 @@ async function handleConvertPdfCurrentPage() {
 
     finishProgress(true, `Đã chuyển đổi thành công trang ${state.pdfCurrentPage}!`);
     showToast(`Chuyển đổi trang ${state.pdfCurrentPage} hoàn tất!`, 'success');
+    if (window.innerWidth < 1024) {
+      setMobileView('preview');
+    }
   } catch (error) {
     console.error('PDF Conversion error:', error);
     finishProgress(false, error.message || 'Chuyển đổi thất bại');
@@ -1247,6 +1322,9 @@ ${bodyContent}
 
     finishProgress(true, `Hoàn thành chuyển đổi toàn bộ ${total} trang PDF!`);
     showToast(`Đã chuyển đổi thành công cả ${total} trang PDF sang LaTeX!`, 'success');
+    if (window.innerWidth < 1024) {
+      setMobileView('preview');
+    }
   } catch (error) {
     console.error('Batch PDF error:', error);
     finishProgress(false, error.message || 'Chuyển đổi thất bại');
@@ -1289,20 +1367,30 @@ function switchTab(tab) {
     el.tabCodeBtn?.classList.add('active');
     el.codeViewContainer?.classList.remove('hidden');
     el.previewViewContainer?.classList.add('hidden');
-    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 gap-3 min-h-[480px]';
+    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 gap-3 min-h-[320px] sm:min-h-[480px]';
+    if (window.innerWidth < 1024) {
+      [el.mobileNavSourceBtn, el.mobileNavCodeBtn, el.mobileNavPreviewBtn].forEach(b => b?.classList.remove('active'));
+      el.mobileNavCodeBtn?.classList.add('active');
+      state.mobileView = 'code';
+    }
   } else if (tab === 'preview') {
     el.tabPreviewBtn?.classList.add('active');
     el.codeViewContainer?.classList.add('hidden');
     el.previewViewContainer?.classList.remove('hidden');
     el.previewViewContainer?.classList.add('flex');
-    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 gap-3 min-h-[480px]';
+    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 gap-3 min-h-[320px] sm:min-h-[480px]';
+    if (window.innerWidth < 1024) {
+      [el.mobileNavSourceBtn, el.mobileNavCodeBtn, el.mobileNavPreviewBtn].forEach(b => b?.classList.remove('active'));
+      el.mobileNavPreviewBtn?.classList.add('active');
+      state.mobileView = 'preview';
+    }
     renderLatexPreview();
   } else if (tab === 'split') {
     el.tabSplitBtn?.classList.add('active');
     el.codeViewContainer?.classList.remove('hidden');
     el.previewViewContainer?.classList.remove('hidden');
     el.previewViewContainer?.classList.add('flex');
-    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[480px]';
+    if (el.workspaceArea) el.workspaceArea.className = 'flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[320px] sm:min-h-[480px]';
     renderLatexPreview();
   }
 }
@@ -1316,6 +1404,14 @@ function updateEditorStats() {
   const charCount = text.length;
   const lineCount = text ? text.split('\n').length : 0;
   if (el.charCount) el.charCount.textContent = `${charCount} ký tự | ${lineCount} dòng`;
+
+  if (el.mobileCodeBadge) {
+    if (text.trim().length > 0) {
+      el.mobileCodeBadge.classList.remove('hidden');
+    } else {
+      el.mobileCodeBadge.classList.add('hidden');
+    }
+  }
 }
 
 function insertLatexAtCursor(snippet) {

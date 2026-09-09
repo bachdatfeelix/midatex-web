@@ -2,7 +2,10 @@
 <html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="theme-color" content="#17251F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>MiDaTeX — Chuyển Đổi Ảnh &amp; PDF Đề Toán Sang LaTeX Chuẩn</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.85em' font-size='85'>📐</text></svg>">
 
@@ -102,40 +105,39 @@
   </div>
 
   <!-- Header -->
-  <header class="header-rule relative z-30 sticky top-0 px-4 lg:px-8 py-3 dark:bg-board-900 bg-white/90 backdrop-blur-md border-b dark:border-chalk/10 border-[#E5E0D8]">
-    <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-3">
+  <header class="header-rule relative z-30 sticky top-0 px-3 sm:px-4 lg:px-8 py-2.5 sm:py-3 dark:bg-board-900 bg-white/90 backdrop-blur-md border-b dark:border-chalk/10 border-[#E5E0D8]">
+    <div class="max-w-[1800px] mx-auto flex items-center justify-between gap-2 sm:gap-3">
 
       <!-- Brand -->
-      <div class="flex items-center gap-3">
-        <svg width="34" height="34" viewBox="0 0 38 38" fill="none" class="shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <svg viewBox="0 0 38 38" fill="none" class="shrink-0 w-7 h-7 sm:w-[34px] sm:h-[34px]">
           <circle cx="19" cy="19" r="16" stroke="#D6A23C" stroke-width="1.4"/>
           <path d="M19 7 L19 31 M9 12 L29 26" stroke="#D6A23C" stroke-width="1.4" stroke-linecap="round"/>
           <circle cx="19" cy="19" r="2" fill="#D6A23C"/>
         </svg>
         <div>
-          <div class="flex items-baseline gap-2">
-            <span class="font-display text-[19px] font-semibold tracking-tight dark:text-chalk text-paper-ink">MiDa<span class="text-pen">TeX</span></span>
+          <div class="flex items-baseline gap-1.5 sm:gap-2">
+            <span class="font-display text-base sm:text-[19px] font-semibold tracking-tight dark:text-chalk text-paper-ink">MiDa<span class="text-pen">TeX</span></span>
           </div>
           <p class="text-[11px] dark:text-chalk-dim text-[#6B6560] font-medium hidden sm:block tracking-wide">Chuyển ảnh &amp; PDF đề toán sang mã LaTeX chuẩn đẹp</p>
         </div>
       </div>
 
       <!-- Mode Selector: Standard vs Pro -->
-      <div class="flex items-center dark:bg-board-800 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-1 rounded-xl gap-1">
-        <button id="modeStandardBtn" class="mode-tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
-          <i class="fa-solid fa-image text-gold"></i>
+      <div class="flex items-center dark:bg-board-800 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-0.5 sm:p-1 rounded-lg sm:rounded-xl gap-0.5 sm:gap-1">
+        <button id="modeStandardBtn" class="mode-tab-btn active px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all">
+          <i class="fa-solid fa-image text-gold text-xs"></i>
           <span>Standard</span>
         </button>
-        <button id="modeProBtn" class="mode-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
-          <i class="fa-solid fa-file-pdf text-pen"></i>
+        <button id="modeProBtn" class="mode-tab-btn px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all">
+          <i class="fa-solid fa-file-pdf text-pen text-xs"></i>
           <span>Pro</span>
-          <span class="text-[9px] font-mono px-1.5 py-0.2 bg-pen/15 text-pen-400 font-bold rounded uppercase">PDF</span>
+          <span class="text-[9px] font-mono px-1 py-0.2 bg-pen/15 text-pen-400 font-bold rounded uppercase hidden xs:inline">PDF</span>
         </button>
       </div>
 
       <!-- Right toolbar -->
-      <div class="flex items-center gap-2.5">
-
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
 
         <div class="hidden md:flex items-center dark:bg-board-800 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] rounded-lg px-3 py-1.5 text-xs gap-2 focus-within:border-gold/50 transition-colors">
           <i class="fa-regular fa-file-code text-gold text-[11px]"></i>
@@ -146,30 +148,49 @@
           </select>
         </div>
 
-        <button id="openSettingsBtn" class="h-9 px-3 rounded-lg dark:bg-board-800 bg-[#F5F3EF] dark:hover:bg-board-700 hover:bg-[#EDE9E2] border dark:border-chalk/10 border-[#E5E0D8] dark:hover:border-gold/40 hover:border-gold/40 dark:text-chalk-dim text-[#6B6560] dark:hover:text-chalk hover:text-paper-ink font-medium text-xs flex items-center gap-2 transition-colors">
-          <i class="fa-solid fa-sliders text-gold text-[11px]"></i>
+        <button id="openSettingsBtn" class="h-8 w-8 sm:h-9 sm:w-auto sm:px-3 justify-center rounded-lg dark:bg-board-800 bg-[#F5F3EF] dark:hover:bg-board-700 hover:bg-[#EDE9E2] border dark:border-chalk/10 border-[#E5E0D8] dark:hover:border-gold/40 hover:border-gold/40 dark:text-chalk-dim text-[#6B6560] dark:hover:text-chalk hover:text-paper-ink font-medium text-xs flex items-center gap-1.5 sm:gap-2 transition-colors relative" title="Cấu hình API">
+          <i class="fa-solid fa-sliders text-gold text-xs sm:text-[11px]"></i>
           <span class="hidden sm:inline">Cấu hình API</span>
-          <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-amber-400 ring-2 ring-amber-400/20" title="Chưa nhập API Key"></span>
+          <span id="apiStatusDot" class="w-2 h-2 rounded-full bg-amber-400 ring-2 ring-amber-400/20 absolute -top-0.5 -right-0.5 sm:static" title="Chưa nhập API Key"></span>
         </button>
 
         <!-- Theme Toggle -->
-        <button id="themeToggleBtn" title="Chuyển đổi giao diện Sáng/Tối" class="theme-toggle-btn">
-          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+        <button id="themeToggleBtn" title="Chuyển đổi giao diện Sáng/Tối" class="theme-toggle-btn h-8 w-8 sm:h-9 sm:w-9">
+          <i id="themeIcon" class="fa-solid fa-moon text-xs sm:text-sm"></i>
         </button>
 
-        <button id="openGuideBtn" title="Hướng dẫn sử dụng" class="w-9 h-9 rounded-lg dark:bg-board-800 bg-[#F5F3EF] dark:hover:bg-board-700 hover:bg-[#EDE9E2] border dark:border-chalk/10 border-[#E5E0D8] dark:text-chalk-dim text-[#6B6560] dark:hover:text-chalk hover:text-paper-ink flex items-center justify-center transition-colors">
-          <i class="fa-solid fa-circle-question text-sm"></i>
+        <button id="openGuideBtn" title="Hướng dẫn sử dụng" class="h-8 w-8 sm:h-9 sm:w-9 rounded-lg dark:bg-board-800 bg-[#F5F3EF] dark:hover:bg-board-700 hover:bg-[#EDE9E2] border dark:border-chalk/10 border-[#E5E0D8] dark:text-chalk-dim text-[#6B6560] dark:hover:text-chalk hover:text-paper-ink flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-circle-question text-xs sm:text-sm"></i>
         </button>
       </div>
 
     </div>
   </header>
 
+  <!-- Mobile Segmented View Navigation (Visible only on mobile < lg) -->
+  <div id="mobileViewNav" class="lg:hidden sticky top-[53px] z-20 px-3 py-2 dark:bg-board-900/95 bg-white/95 backdrop-blur-md border-b dark:border-chalk/10 border-[#E5E0D8] shadow-sm">
+    <div class="grid grid-cols-3 gap-1 p-1 rounded-xl dark:bg-board-800 bg-[#F3EFE6] border dark:border-chalk/10 border-[#E5E0D8]">
+      <button id="mobileNavSourceBtn" type="button" class="mobile-nav-btn active flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-semibold transition-all">
+        <i class="fa-solid fa-cloud-arrow-up text-gold text-xs"></i>
+        <span class="truncate">Nạp Đề</span>
+      </button>
+      <button id="mobileNavCodeBtn" type="button" class="mobile-nav-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-semibold transition-all">
+        <i class="fa-solid fa-code text-gold text-xs"></i>
+        <span class="truncate">Mã .tex</span>
+        <span id="mobileCodeBadge" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+      </button>
+      <button id="mobileNavPreviewBtn" type="button" class="mobile-nav-btn flex items-center justify-center gap-1.5 py-2 px-1 rounded-lg text-xs font-semibold transition-all">
+        <i class="fa-solid fa-book-open-reader text-pen text-xs"></i>
+        <span class="truncate">Xem Trước</span>
+      </button>
+    </div>
+  </div>
+
   <!-- Main Studio Workspace -->
   <main class="relative z-10 flex-1 p-3 sm:p-5 lg:p-6 max-w-[1800px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
 
     <!-- LEFT PANEL: image/PDF capture -->
-    <div class="lg:col-span-5 flex flex-col gap-4">
+    <div id="leftPanel" class="lg:col-span-5 flex flex-col gap-4">
 
       <div class="slate-panel p-4 sm:p-5 flex flex-col gap-4">
 
@@ -178,85 +199,85 @@
             <span class="step-index">1</span>
             <h2 id="leftPanelTitle" class="font-display text-[15px] font-semibold dark:text-chalk text-paper-ink tracking-tight">Nạp ảnh đề toán</h2>
           </div>
-          <div id="pasteHintChip" class="hint-chip">
+          <div id="pasteHintChip" class="hint-chip hidden sm:inline-flex">
             <i class="fa-solid fa-paste text-[10px] text-gold"></i> <kbd class="kbd">Ctrl+V</kbd> dán nhanh
           </div>
         </div>
 
         <!-- Drop zone -->
-        <div id="dropZone" class="dropzone relative group rounded-lg p-5 cursor-pointer flex flex-col items-center justify-center min-h-[220px] overflow-hidden">
-          <input type="file" id="fileInput" accept="image/*" aria-label="Chọn ảnh hoặc tài liệu PDF để chuyển đổi" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+        <div id="dropZone" class="dropzone relative group rounded-xl p-4 sm:p-5 cursor-pointer flex flex-col items-center justify-center min-h-[160px] sm:min-h-[220px] overflow-hidden">
+          <input type="file" id="fileInput" accept="image/*,.pdf" aria-label="Chọn ảnh hoặc tài liệu PDF để chuyển đổi" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
 
-          <div id="uploadPrompt" class="flex flex-col items-center gap-3 pointer-events-none z-10 text-center">
-            <div id="uploadIconBox" class="w-14 h-14 rounded-full border border-gold/30 flex items-center justify-center text-gold group-hover:scale-105 group-hover:border-gold/60 transition-transform duration-300">
-              <i id="uploadMainIcon" class="fa-solid fa-cloud-arrow-up text-xl"></i>
+          <div id="uploadPrompt" class="flex flex-col items-center gap-2.5 sm:gap-3 pointer-events-none z-10 text-center">
+            <div id="uploadIconBox" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-gold/30 flex items-center justify-center text-gold group-hover:scale-105 group-hover:border-gold/60 transition-transform duration-300">
+              <i id="uploadMainIcon" class="fa-solid fa-cloud-arrow-up text-lg sm:text-xl"></i>
             </div>
             <div class="space-y-1">
-              <p id="uploadPromptText" class="text-sm font-medium dark:text-chalk text-paper-ink">Kéo &amp; thả ảnh đề thi vào đây, hoặc <span class="text-gold underline decoration-gold/40 underline-offset-4 group-hover:decoration-gold">chọn tệp</span></p>
-              <p id="uploadPromptSub" class="text-xs dark:text-chalk-dim text-[#6B6560]">PNG, JPG, JPEG, WEBP — kể cả ảnh chụp màn hình</p>
+              <p id="uploadPromptText" class="text-xs sm:text-sm font-medium dark:text-chalk text-paper-ink">Chạm để chọn ảnh đề toán, hoặc <span class="text-gold underline decoration-gold/40 underline-offset-4 group-hover:decoration-gold">tải tệp</span></p>
+              <p id="uploadPromptSub" class="text-[11px] sm:text-xs dark:text-chalk-dim text-[#6B6560]">PNG, JPG, WEBP, PDF — kể cả ảnh chụp màn hình</p>
             </div>
           </div>
 
           <!-- Standard Image Preview -->
           <div id="imagePreviewContainer" class="hidden w-full flex flex-col items-center gap-3 z-10">
-            <div class="relative w-full max-h-[380px] overflow-hidden rounded-xl dark:bg-board-950 bg-gray-100 flex items-center justify-center border dark:border-chalk/10 border-[#E5E0D8] group/preview shadow-inner">
-              <img id="previewImg" src="" alt="Ảnh đề toán đã tải" class="max-h-[360px] max-w-full object-contain select-none">
+            <div class="relative w-full max-h-[260px] sm:max-h-[380px] overflow-hidden rounded-xl dark:bg-board-950 bg-gray-100 flex items-center justify-center border dark:border-chalk/10 border-[#E5E0D8] group/preview shadow-inner">
+              <img id="previewImg" src="" alt="Ảnh đề toán đã tải" class="max-h-[240px] sm:max-h-[360px] max-w-full object-contain select-none">
 
               <!-- Floating Quick Action Overlay -->
-              <div class="absolute top-2.5 right-2.5 z-30 flex items-center gap-1.5 p-1 rounded-lg backdrop-blur-md dark:bg-board-950/80 bg-white/90 border dark:border-chalk/15 border-black/10 shadow-md opacity-90 hover:opacity-100 transition-all duration-200">
+              <div class="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-30 flex items-center gap-1 sm:gap-1.5 p-1 rounded-lg backdrop-blur-md dark:bg-board-950/80 bg-white/90 border dark:border-chalk/15 border-black/10 shadow-md opacity-95 transition-all duration-200">
                 <button id="quickCropBtn" type="button" class="preview-quick-btn preview-quick-crop" title="Cắt vùng chọn ngay (Phím C)">
-                  <i class="fa-solid fa-crop-simple"></i>
+                  <i class="fa-solid fa-crop-simple text-xs"></i>
                   <span class="text-[11px] font-semibold hidden sm:inline">Cắt</span>
                 </button>
                 <button id="quickRotateBtn" type="button" class="preview-quick-btn preview-quick-rotate" title="Xoay ảnh 90° (Phím R)">
-                  <i class="fa-solid fa-rotate-right"></i>
+                  <i class="fa-solid fa-rotate-right text-xs"></i>
                 </button>
                 <div class="h-3.5 w-px dark:bg-chalk/15 bg-black/10 mx-0.5"></div>
                 <button id="quickDeleteBtn" type="button" class="preview-quick-btn preview-quick-delete" title="Xóa ảnh (Phím Del)">
-                  <i class="fa-regular fa-trash-can"></i>
+                  <i class="fa-regular fa-trash-can text-xs"></i>
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Pro PDF Viewer & Navigator -->
-          <div id="pdfViewerContainer" class="hidden w-full flex flex-col gap-3 z-10 animate-scaleUp">
+          <div id="pdfViewerContainer" class="hidden w-full flex flex-col gap-2.5 sm:gap-3 z-10 animate-scaleUp">
             <!-- PDF File Info Bar -->
-            <div class="flex items-center justify-between p-2.5 rounded-lg dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] text-xs">
+            <div class="flex items-center justify-between p-2 sm:p-2.5 rounded-lg dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] text-xs">
               <div class="flex items-center gap-2 truncate pr-2">
-                <i class="fa-solid fa-file-pdf text-pen text-lg shrink-0"></i>
+                <i class="fa-solid fa-file-pdf text-pen text-base sm:text-lg shrink-0"></i>
                 <div class="truncate">
                   <div id="pdfFileName" class="font-semibold dark:text-chalk text-paper-ink truncate">de_thi.pdf</div>
-                  <div id="pdfPageStats" class="text-[11px] dark:text-chalk-dim text-[#6B6560]">Tổng số 1 trang</div>
+                  <div id="pdfPageStats" class="text-[10px] sm:text-[11px] dark:text-chalk-dim text-[#6B6560]">Tổng số 1 trang</div>
                 </div>
               </div>
               <button id="removePdfBtn" type="button" class="text-pen hover:text-pen-600 text-xs font-semibold px-2 py-1 rounded dark:hover:bg-board-800 hover:bg-[#E5E0D8] transition-colors shrink-0">
-                <i class="fa-solid fa-xmark"></i> Đổi tệp
+                <i class="fa-solid fa-xmark"></i> <span class="hidden xs:inline">Đổi tệp</span>
               </button>
             </div>
 
             <!-- PDF Page Navigator -->
-            <div class="flex items-center justify-between gap-2 p-2 rounded-lg dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] text-xs">
-              <button id="pdfPrevPageBtn" type="button" class="btn-chip px-2.5 py-1 text-xs">
-                <i class="fa-solid fa-chevron-left"></i> Trang trước
+            <div class="flex items-center justify-between gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] text-xs">
+              <button id="pdfPrevPageBtn" type="button" class="btn-chip px-2 sm:px-2.5 py-1 text-xs">
+                <i class="fa-solid fa-chevron-left"></i> <span class="hidden xs:inline">Trước</span>
               </button>
-              <div class="flex items-center gap-1.5 font-mono">
+              <div class="flex items-center gap-1.5 font-mono text-xs">
                 <span class="dark:text-chalk-dim text-[#6B6560]">Trang</span>
-                <input type="number" id="pdfPageInput" min="1" max="1" value="1" class="w-12 text-center py-0.5 px-1 rounded dark:bg-board-800 bg-white border dark:border-chalk/10 border-[#E5E0D8] font-bold dark:text-gold text-pen outline-none">
+                <input type="number" id="pdfPageInput" min="1" max="1" value="1" class="w-10 sm:w-12 text-center py-0.5 px-1 rounded dark:bg-board-800 bg-white border dark:border-chalk/10 border-[#E5E0D8] font-bold dark:text-gold text-pen outline-none">
                 <span id="pdfTotalPagesLabel" class="dark:text-chalk-dim text-[#6B6560]">/ 1</span>
               </div>
-              <button id="pdfNextPageBtn" type="button" class="btn-chip px-2.5 py-1 text-xs">
-                Trang sau <i class="fa-solid fa-chevron-right"></i>
+              <button id="pdfNextPageBtn" type="button" class="btn-chip px-2 sm:px-2.5 py-1 text-xs">
+                <span class="hidden xs:inline">Sau</span> <i class="fa-solid fa-chevron-right"></i>
               </button>
             </div>
 
             <!-- PDF Canvas Container -->
-            <div class="pdf-page-canvas-wrap">
+            <div class="pdf-page-canvas-wrap max-h-[300px] sm:max-h-[420px]">
               <canvas id="pdfCanvas"></canvas>
             </div>
 
             <!-- Pro PDF Batch / Single Action Buttons -->
-            <div class="p-3 rounded-lg dark:bg-board-950/80 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] flex flex-col gap-2">
+            <div class="p-2.5 sm:p-3 rounded-lg dark:bg-board-950/80 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] flex flex-col gap-2">
               <span class="text-xs font-semibold dark:text-chalk text-paper-ink flex items-center gap-1.5">
                 <i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Tùy chọn chuyển đổi Pro:
               </span>
@@ -302,45 +323,45 @@
         <div class="space-y-1.5">
           <label for="customNotes" class="text-xs font-medium dark:text-chalk-dim text-[#6B6560] flex items-center justify-between">
             <span>Ghi chú thêm (tuỳ chọn)</span>
-            <span class="text-[10px] dark:text-chalk-faint text-[#9B9590] font-normal">VD: chỉ làm câu 2, vẽ TikZ...</span>
+            <span class="text-[10px] dark:text-chalk-faint text-[#9B9590] font-normal hidden xs:inline">VD: chỉ làm câu 2, vẽ TikZ...</span>
           </label>
-          <input type="text" id="customNotes" placeholder="Ví dụ: chỉ nhận diện câu 2; hoặc chuyển phân số sang dạng dfrac..." class="field">
+          <input type="text" id="customNotes" placeholder="Ví dụ: chỉ nhận diện câu 2, hoặc chuyển phân số sang dfrac..." class="field text-xs sm:text-xs">
         </div>
 
         <!-- Convert CTA -->
-        <button id="convertBtn" class="cta-convert-btn relative w-full py-3.5 px-5 rounded-lg font-semibold text-sm flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-          <span class="flex items-center gap-2.5">
-            <i class="fa-solid fa-bolt-lightning"></i>
+        <button id="convertBtn" class="cta-convert-btn relative w-full py-3.5 px-4 sm:px-5 rounded-lg font-semibold text-xs sm:text-sm flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="flex items-center gap-2 sm:gap-2.5">
+            <i class="fa-solid fa-bolt-lightning text-amber-300"></i>
             <span id="convertBtnText">Chuyển Đổi Thành LaTeX Ngay</span>
           </span>
-          <span class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+          <span class="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center shrink-0">
             <i id="convertBtnIcon" class="fa-solid fa-arrow-right text-xs"></i>
             <span id="convertSpinner" class="hidden animate-spin text-xs"><i class="fa-solid fa-spinner"></i></span>
           </span>
         </button>
 
         <!-- Progress Bar -->
-        <div id="progressContainer" class="hidden flex-col gap-2.5 p-4 rounded-xl dark:bg-board-950/80 bg-[#F5F3EF] border dark:border-gold/20 border-gold/30 transition-all duration-300 animate-scaleUp">
+        <div id="progressContainer" class="hidden flex-col gap-2.5 p-3.5 sm:p-4 rounded-xl dark:bg-board-950/80 bg-[#F5F3EF] border dark:border-gold/20 border-gold/30 transition-all duration-300 animate-scaleUp">
           <div class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2 text-gold font-semibold truncate pr-2">
               <i id="progressIcon" class="fa-solid fa-circle-notch fa-spin text-gold text-sm"></i>
-              <span id="progressStatus" class="truncate">Đang khởi tạo tiến trình...</span>
+              <span id="progressStatus" class="truncate text-xs">Đang khởi tạo tiến trình...</span>
             </div>
-            <span id="progressPercent" class="font-mono font-bold text-gold text-sm tracking-wider">0%</span>
+            <span id="progressPercent" class="font-mono font-bold text-gold text-xs sm:text-sm tracking-wider">0%</span>
           </div>
-          <div class="w-full dark:bg-board-950 bg-[#E5E0D8] h-3 rounded-full overflow-hidden border dark:border-chalk/10 border-[#D8CBB5] relative">
+          <div class="w-full dark:bg-board-950 bg-[#E5E0D8] h-2.5 sm:h-3 rounded-full overflow-hidden border dark:border-chalk/10 border-[#D8CBB5] relative">
             <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-gold via-pen-400 to-gold transition-all duration-300 relative progress-bar-animated" style="width: 0%;">
               <div class="progress-bar-glow"></div>
             </div>
           </div>
-          <div class="flex items-center justify-between text-[10px] dark:text-chalk-faint text-[#9B9590] pt-0.5 font-mono select-none">
-            <span id="step1" class="transition-colors duration-200 text-gold font-semibold">1. Nạp tài liệu</span>
+          <div class="flex items-center justify-between text-[9px] sm:text-[10px] dark:text-chalk-faint text-[#9B9590] pt-0.5 font-mono select-none">
+            <span id="step1" class="transition-colors duration-200 text-gold font-semibold"><span class="sm:hidden">1. Nạp</span><span class="hidden sm:inline">1. Nạp tài liệu</span></span>
             <span class="dark:text-chalk-faint/40 text-[#D8CBB5]">•</span>
-            <span id="step2" class="transition-colors duration-200">2. AI Vision OCR</span>
+            <span id="step2" class="transition-colors duration-200"><span class="sm:hidden">2. OCR</span><span class="hidden sm:inline">2. AI Vision OCR</span></span>
             <span class="dark:text-chalk-faint/40 text-[#D8CBB5]">•</span>
-            <span id="step3" class="transition-colors duration-200">3. LaTeX Syntax</span>
+            <span id="step3" class="transition-colors duration-200"><span class="sm:hidden">3. LaTeX</span><span class="hidden sm:inline">3. LaTeX Syntax</span></span>
             <span class="dark:text-chalk-faint/40 text-[#D8CBB5]">•</span>
-            <span id="step4" class="transition-colors duration-200">4. Hoàn tất</span>
+            <span id="step4" class="transition-colors duration-200"><span class="sm:hidden">4. Xong</span><span class="hidden sm:inline">4. Hoàn tất</span></span>
           </div>
         </div>
 
@@ -349,43 +370,47 @@
     </div>
 
     <!-- RIGHT PANEL: editor + preview -->
-    <div class="lg:col-span-7 flex flex-col gap-4">
+    <div id="rightPanel" class="lg:col-span-7 flex flex-col gap-4">
 
-      <div class="slate-panel p-4 sm:p-5 flex flex-col flex-1 gap-3 min-h-[660px]">
+      <div class="slate-panel p-3.5 sm:p-5 flex flex-col flex-1 gap-3 min-h-[360px] sm:min-h-[480px] lg:min-h-[660px]">
 
         <!-- View controller & Actions -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b dark:border-chalk/10 border-[#E5E0D8]">
+        <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b dark:border-chalk/10 border-[#E5E0D8]">
 
           <div class="flex items-center gap-2">
             <span class="step-index">2</span>
-            <div class="flex items-center dark:bg-board-800 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-1 rounded-lg gap-1 text-xs">
-              <button id="tabCodeBtn" class="tab-pill active px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors">
-                <i class="fa-solid fa-code text-gold"></i> Mã LaTeX (.tex)
+            <div class="flex items-center dark:bg-board-800 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-0.5 sm:p-1 rounded-lg gap-0.5 sm:gap-1 text-xs">
+              <button id="tabCodeBtn" class="tab-pill active px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md flex items-center gap-1 sm:gap-1.5 transition-colors">
+                <i class="fa-solid fa-code text-gold text-xs"></i>
+                <span class="hidden xs:inline">Mã LaTeX</span>
+                <span class="xs:hidden">Mã</span>
               </button>
-              <button id="tabPreviewBtn" class="tab-pill px-3 py-1.5 rounded-md font-medium flex items-center gap-1.5 transition-colors">
-                <i class="fa-solid fa-eye text-gold"></i> Bản Xem Trước
+              <button id="tabPreviewBtn" class="tab-pill px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md font-medium flex items-center gap-1 sm:gap-1.5 transition-colors">
+                <i class="fa-solid fa-eye text-gold text-xs"></i>
+                <span class="hidden xs:inline">Xem Trước</span>
+                <span class="xs:hidden">Xem</span>
               </button>
               <button id="tabSplitBtn" class="tab-pill hidden sm:flex px-3 py-1.5 rounded-md font-medium items-center gap-1.5 transition-colors">
-                <i class="fa-solid fa-table-columns text-gold"></i> Song Song
+                <i class="fa-solid fa-table-columns text-gold text-xs"></i> Song Song
               </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button id="copyLatexBtn" class="btn-chip">
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <button id="copyLatexBtn" class="btn-chip px-2 sm:px-2.5 py-1 text-xs">
               <i class="fa-regular fa-copy text-gold"></i>
-              <span id="copyBtnText">Sao chép</span>
+              <span id="copyBtnText" class="hidden xs:inline">Sao chép</span>
             </button>
-            <button id="downloadTexBtn" class="btn-chip btn-chip-accent">
+            <button id="downloadTexBtn" class="btn-chip btn-chip-accent px-2 sm:px-2.5 py-1 text-xs">
               <i class="fa-solid fa-download"></i>
-              <span>Tải .tex</span>
+              <span class="hidden xs:inline">Tải .tex</span>
             </button>
-            <button id="openOverleafBtn" title="Mở trực tiếp trên Overleaf" class="btn-chip">
+            <button id="openOverleafBtn" title="Mở trực tiếp trên Overleaf" class="btn-chip px-2 sm:px-2.5 py-1 text-xs">
               <i class="fa-solid fa-arrow-up-right-from-square text-gold"></i>
               <span class="hidden sm:inline">Overleaf</span>
             </button>
             <button id="clearCodeBtn" title="Xóa toàn bộ mã" class="icon-btn hover:text-pen hover:border-pen/40">
-              <i class="fa-solid fa-trash-can"></i>
+              <i class="fa-solid fa-trash-can text-xs"></i>
             </button>
           </div>
 
@@ -393,7 +418,7 @@
 
         <!-- Math quick-insert (Rendered Math Symbols) -->
         <div id="quickInsertToolbar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 border-b dark:border-chalk/10 border-[#E5E0D8]">
-          <span class="text-[10px] dark:text-chalk-faint text-[#9B9590] font-bold uppercase tracking-wider pl-1 pr-1 whitespace-nowrap">Chèn nhanh:</span>
+          <span class="text-[10px] dark:text-chalk-faint text-[#9B9590] font-bold uppercase tracking-wider pl-1 pr-1 whitespace-nowrap">Chèn:</span>
           
           <button class="math-tool-pill" data-latex="\dfrac{a}{b}" title="Phân số lớn \dfrac{a}{b}">
             <span class="math-symbol">$\frac{a}{b}$</span>
@@ -412,8 +437,6 @@
           </button>
           <button class="math-tool-pill" data-latex="\sum_{i=1}^{n}" title="Tổng xích-ma \sum_{i=1}^{n}">
             <span class="math-symbol">$\sum_{i=1}^n$</span>
-          </button>
-    
           </button>
           <button class="math-tool-pill" data-latex="\vec{a}" title="Vector \vec{a}">
             <span class="math-symbol">$\vec{a}$</span>
@@ -448,44 +471,46 @@
         </div>
 
         <!-- Workspace -->
-        <div id="workspaceArea" class="flex-1 grid grid-cols-1 gap-3 min-h-[480px]">
+        <div id="workspaceArea" class="flex-1 grid grid-cols-1 gap-3 min-h-[320px] sm:min-h-[480px]">
 
           <!-- Code View -->
           <div id="codeViewContainer" class="flex flex-col h-full rounded-md overflow-hidden border dark:border-chalk/10 border-[#E5E0D8] dark:bg-board-950 bg-[#FAFAF8]">
             <div class="dark:bg-board-800 bg-[#F5F3EF] px-3 py-2 border-b dark:border-chalk/10 border-[#E5E0D8] flex flex-wrap items-center justify-between gap-2 text-xs">
               <div class="flex items-center gap-1.5">
                 <span class="dark:text-chalk-dim text-[#6B6560] font-medium hidden sm:inline">Tên tệp:</span>
-                <div class="flex items-center bg-black/10 dark:bg-board-950/80 px-2.5 py-1 rounded-md border dark:border-chalk/10 border-[#E5E0D8] focus-within:border-gold">
+                <div class="flex items-center bg-black/10 dark:bg-board-950/80 px-2 sm:px-2.5 py-1 rounded-md border dark:border-chalk/10 border-[#E5E0D8] focus-within:border-gold">
                   <i class="fa-regular fa-file-lines text-gold text-[11px] mr-1.5"></i>
-                  <input type="text" id="texFileNameInput" value="de_toan" placeholder="de_toan" class="bg-transparent font-mono text-xs font-semibold dark:text-chalk text-paper-ink outline-none w-32 sm:w-48 focus:w-60 transition-all">
+                  <input type="text" id="texFileNameInput" value="de_toan" placeholder="de_toan" class="bg-transparent font-mono text-xs font-semibold dark:text-chalk text-paper-ink outline-none w-24 xs:w-32 sm:w-48 focus:w-36 sm:focus:w-60 transition-all">
                   <span class="font-mono text-xs text-gold/80 font-bold select-none">.tex</span>
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <span id="charCount" class="font-mono text-[11px] dark:text-chalk-faint text-[#9B9590]">0 ký tự | 0 dòng</span>
+                <span id="charCount" class="font-mono text-[10px] sm:text-[11px] dark:text-chalk-faint text-[#9B9590]">0 ký tự | 0 dòng</span>
               </div>
             </div>
-            <textarea id="latexEditor" spellcheck="false" placeholder="% Kết quả mã LaTeX sẽ tự động xuất hiện ở đây sau khi bạn nạp ảnh/PDF và nhấn 'Chuyển Đổi'&#10;% Bạn có thể tự do chỉnh sửa, gõ thêm công thức hoặc sao chép mã..." class="w-full flex-1 p-4 bg-transparent dark:text-chalk text-paper-ink font-mono text-xs sm:text-[13px] leading-relaxed resize-none focus:outline-none dark:placeholder-chalk-faint/70 placeholder-[#9B9590]/60 select-text"></textarea>
+            <textarea id="latexEditor" spellcheck="false" autocapitalize="none" autocomplete="off" autocorrect="off" placeholder="% Kết quả mã LaTeX sẽ tự động xuất hiện ở đây sau khi bạn nạp ảnh/PDF và nhấn 'Chuyển Đổi'&#10;% Bạn có thể tự do chỉnh sửa, gõ thêm công thức hoặc sao chép mã..." class="w-full flex-1 p-3 sm:p-4 bg-transparent dark:text-chalk text-paper-ink font-mono text-xs sm:text-[13px] leading-relaxed resize-none focus:outline-none dark:placeholder-chalk-faint/70 placeholder-[#9B9590]/60 select-text min-h-[300px]"></textarea>
           </div>
 
           <!-- Preview View -->
           <div id="previewViewContainer" class="exam-paper hidden flex-col h-full rounded-md overflow-hidden border dark:border-chalk/10 border-[#E5E0D8] bg-paper text-paper-ink shadow-xl">
-            <div class="bg-paper px-4 py-2 border-b border-paper-line flex items-center justify-between text-xs">
-              <span class="font-display font-semibold flex items-center gap-2 text-paper-ink/80">
-                <i class="fa-solid fa-book-open-reader text-pen text-[12px]"></i> Bản Đề Thi Đã Định Dạng Chuẩn
+            <div class="bg-paper px-3 sm:px-4 py-2 border-b border-paper-line flex items-center justify-between text-xs gap-2">
+              <span class="font-display font-semibold flex items-center gap-1.5 sm:gap-2 text-paper-ink/80 truncate">
+                <i class="fa-solid fa-book-open-reader text-pen text-[12px] shrink-0"></i>
+                <span class="hidden sm:inline">Bản Đề Thi Đã Định Dạng Chuẩn</span>
+                <span class="sm:hidden text-xs">Xem Trước Đề Thi</span>
               </span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
                 <button id="zoomInBtn" title="Phóng to font chữ" class="paper-icon-btn"><i class="fa-solid fa-magnifying-glass-plus text-xs"></i></button>
                 <button id="zoomOutBtn" title="Thu nhỏ font chữ" class="paper-icon-btn"><i class="fa-solid fa-magnifying-glass-minus text-xs"></i></button>
-                <button id="printPreviewBtn" title="In hoặc xuất PDF" class="paper-print-btn">
-                  <i class="fa-solid fa-print"></i> In PDF
+                <button id="printPreviewBtn" title="In hoặc xuất PDF" class="paper-print-btn px-2 sm:px-2.5 py-1 text-xs">
+                  <i class="fa-solid fa-print"></i> <span class="hidden xs:inline">In PDF</span>
                 </button>
               </div>
             </div>
-            <div id="renderOutput" class="relative flex-1 p-6 pl-10 overflow-y-auto font-math text-paper-ink text-base leading-relaxed select-text min-h-[400px]">
-              <div class="text-paper-ink/40 text-center italic mt-16 flex flex-col items-center gap-2">
+            <div id="renderOutput" class="relative flex-1 p-4 sm:p-6 pl-6 sm:pl-10 overflow-y-auto font-math text-paper-ink text-base leading-relaxed select-text min-h-[320px] sm:min-h-[400px]">
+              <div class="text-paper-ink/40 text-center italic mt-12 sm:mt-16 flex flex-col items-center gap-2">
                 <i class="fa-solid fa-file-circle-question text-3xl text-paper-ink/20"></i>
-                <span>Chưa có nội dung hiển thị. Hãy chuyển đổi ảnh/PDF hoặc nhập mã LaTeX ở khung soạn thảo.</span>
+                <span class="text-xs sm:text-sm">Chưa có nội dung hiển thị. Hãy chuyển đổi ảnh/PDF hoặc nhập mã LaTeX ở khung soạn thảo.</span>
               </div>
             </div>
           </div>
@@ -499,17 +524,17 @@
   </main>
 
   <!-- Settings Modal (Multi-Key Support with + Button) -->
-  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="modal-panel p-6 flex flex-col gap-5 max-w-lg w-full max-h-[92vh] overflow-y-auto animate-scaleUp">
+  <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="modal-panel p-4 sm:p-6 flex flex-col gap-4 sm:gap-5 max-w-lg w-full max-h-[92vh] overflow-y-auto animate-scaleUp">
 
-      <div class="flex items-center justify-between border-b dark:border-chalk/10 border-[#E5E0D8] pb-4">
-        <div class="flex items-center gap-3">
+      <div class="flex items-center justify-between border-b dark:border-chalk/10 border-[#E5E0D8] pb-3 sm:pb-4">
+        <div class="flex items-center gap-2.5 sm:gap-3">
           <span class="step-index step-index-lg">
             <i class="fa-solid fa-sliders"></i>
           </span>
           <div>
-            <h3 class="font-display text-base font-semibold dark:text-chalk text-paper-ink">Cấu Hình Nhận Diện &amp; API</h3>
-            <p class="text-xs dark:text-chalk-dim text-[#6B6560]">Quản lý danh sách API Key &amp; Tự động xoay vòng khi hết hạn ngạch</p>
+            <h3 class="font-display text-sm sm:text-base font-semibold dark:text-chalk text-paper-ink">Cấu Hình Nhận Diện &amp; API</h3>
+            <p class="text-[11px] sm:text-xs dark:text-chalk-dim text-[#6B6560]">Quản lý danh sách API Key &amp; Tự động xoay vòng</p>
           </div>
         </div>
         <button id="closeSettingsBtn" class="icon-btn">
@@ -517,15 +542,15 @@
         </button>
       </div>
 
-      <div class="space-y-4 text-xs">
+      <div class="space-y-3.5 sm:space-y-4 text-xs">
 
         <!-- Google Gemini Multi-Key Pool -->
         <div class="space-y-2.5">
           <div class="flex items-center justify-between">
             <label class="font-semibold dark:text-chalk text-paper-ink flex items-center gap-1.5">
-              <i class="fa-brands fa-google text-gold"></i> Danh Sách Gemini API Keys:
+              <i class="fa-brands fa-google text-gold"></i> Gemini API Keys:
             </label>
-            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-gold hover:text-gold-600 font-semibold underline decoration-gold/40 underline-offset-2 flex items-center gap-1">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-gold hover:text-gold-600 font-semibold underline decoration-gold/40 underline-offset-2 flex items-center gap-1 text-[11px]">
               Lấy Key Miễn Phí <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
             </a>
           </div>
@@ -544,9 +569,9 @@
           </button>
 
           <!-- Gemini Model Selection -->
-          <div class="flex items-center justify-between gap-2 pt-2 border-t dark:border-chalk/10 border-[#E5E0D8]">
-            <label for="geminiModelSelect" class="dark:text-chalk-dim text-[#6B6560] font-medium">Model Vision:</label>
-            <select id="geminiModelSelect" class="dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/12 border-[#E5E0D8] focus:border-gold rounded-lg px-2.5 py-1.5 dark:text-chalk text-paper-ink font-mono text-xs outline-none cursor-pointer">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 pt-2 border-t dark:border-chalk/10 border-[#E5E0D8]">
+            <label for="geminiModelSelect" class="dark:text-chalk-dim text-[#6B6560] font-medium shrink-0">Model Vision:</label>
+            <select id="geminiModelSelect" class="w-full sm:w-auto max-w-full dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/12 border-[#E5E0D8] focus:border-gold rounded-lg px-2.5 py-1.5 dark:text-chalk text-paper-ink font-mono text-xs outline-none cursor-pointer truncate">
               <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Mặc định - Mới nhất &amp; Siêu tốc)</option>
               <option value="gemini-3.7-flash">gemini-3.7-flash (Mạnh nhất &amp; Khuyên dùng)</option>
               <option value="gemini-3.1-pro">gemini-3.1-pro (Chuyên sâu lý luận cao cấp)</option>
@@ -557,17 +582,13 @@
               <option value="gemini-1.5-flash">gemini-1.5-flash</option>
             </select>
           </div>
-          <p class="text-[11px] dark:text-chalk-faint text-[#9B9590]">Khóa API được lưu an toàn trong trình duyệt của bạn (LocalStorage) và không gửi tới bất kỳ bên thứ ba nào.</p>
+          <p class="text-[10px] sm:text-[11px] dark:text-chalk-faint text-[#9B9590]">Khóa API được lưu an toàn trong trình duyệt của bạn (LocalStorage) và không gửi tới bất kỳ bên thứ ba nào.</p>
         </div>
-
-
-
-
 
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 border-t dark:border-chalk/10 border-[#E5E0D8] pt-4">
-        <button id="saveSettingsBtn" class="btn-primary">
+      <div class="flex items-center justify-end gap-2.5 border-t dark:border-chalk/10 border-[#E5E0D8] pt-3 sm:pt-4">
+        <button id="saveSettingsBtn" class="btn-primary w-full sm:w-auto text-center">
           Lưu Cấu Hình
         </button>
       </div>
@@ -576,42 +597,42 @@
   </div>
 
   <!-- Guide Modal -->
-  <div id="guideModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="modal-panel p-6 flex flex-col gap-4 max-w-xl w-full max-h-[90vh] overflow-y-auto animate-scaleUp">
+  <div id="guideModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="modal-panel p-4 sm:p-6 flex flex-col gap-3.5 sm:gap-4 max-w-xl w-full max-h-[90vh] overflow-y-auto animate-scaleUp">
 
       <div class="flex items-center justify-between border-b dark:border-chalk/10 border-[#E5E0D8] pb-3">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5 sm:gap-3">
           <span class="step-index step-index-lg">
             <i class="fa-solid fa-book-bookmark"></i>
           </span>
-          <h3 class="font-display text-base font-semibold dark:text-chalk text-paper-ink">Hướng Dẫn Sử Dụng MiDaTeX</h3>
+          <h3 class="font-display text-sm sm:text-base font-semibold dark:text-chalk text-paper-ink">Hướng Dẫn Sử Dụng MiDaTeX</h3>
         </div>
         <button id="closeGuideBtn" class="icon-btn">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <div class="text-xs dark:text-chalk-dim text-[#6B6560] space-y-3 leading-relaxed">
-        <div class="slate-panel-flat p-3.5">
+      <div class="text-xs dark:text-chalk-dim text-[#6B6560] space-y-2.5 sm:space-y-3 leading-relaxed">
+        <div class="slate-panel-flat p-3 sm:p-3.5">
           <h4 class="font-semibold dark:text-chalk text-paper-ink mb-1 flex items-center gap-2"><span class="step-index">1</span> Chọn Chế Độ Standard hoặc Pro</h4>
           <p><strong class="dark:text-chalk text-paper-ink">Standard:</strong> Chuyển đổi nhanh ảnh chụp màn hình, đề trắc nghiệm đơn lẻ. <br><strong class="dark:text-chalk text-paper-ink">Pro:</strong> Chuyên trị tệp PDF nhiều trang hoặc đề thi dài. Cho phép chuyển đổi từng trang hoặc toàn bộ đề cùng lúc!</p>
         </div>
-        <div class="slate-panel-flat p-3.5">
+        <div class="slate-panel-flat p-3 sm:p-3.5">
           <h4 class="font-semibold dark:text-chalk text-paper-ink mb-1 flex items-center gap-2"><span class="step-index">2</span> Cắt Vùng Chọn &amp; Tinh Chỉnh</h4>
           <p>Dùng công cụ <strong class="dark:text-chalk text-paper-ink">"Cắt vùng chọn"</strong> để khoanh vùng bài toán hoặc công thức cần chuyển đổi.</p>
         </div>
-        <div class="slate-panel-flat p-3.5">
+        <div class="slate-panel-flat p-3 sm:p-3.5">
           <h4 class="font-semibold dark:text-chalk text-paper-ink mb-1 flex items-center gap-2"><span class="step-index">3</span> Chèn Nhanh Ký Hiệu &amp; Đổi Tên Tệp</h4>
           <p>Thanh công cụ chèn nhanh hiển thị trực quan các ký hiệu toán học như phân số, căn thức, tích phân, ma trận... Bạn có thể đổi tên tệp trực tiếp trước khi lưu.</p>
         </div>
-        <div class="slate-panel-flat p-3.5">
+        <div class="slate-panel-flat p-3 sm:p-3.5">
           <h4 class="font-semibold dark:text-chalk text-paper-ink mb-1 flex items-center gap-2"><span class="step-index">4</span> Tải .tex hoặc Biên Dịch Trên Overleaf</h4>
           <p>Tải tệp <code class="kbd">.tex</code> về máy hoặc bấm nút <strong class="dark:text-chalk text-paper-ink">Overleaf</strong> để mở và biên dịch ra file PDF hoàn chỉnh ngay lập tức.</p>
         </div>
       </div>
 
       <div class="flex justify-end pt-2 border-t dark:border-chalk/10 border-[#E5E0D8]">
-        <button id="guideGotItBtn" class="btn-secondary">
+        <button id="guideGotItBtn" class="btn-secondary w-full sm:w-auto">
           Đã Hiểu
         </button>
       </div>
@@ -620,17 +641,17 @@
   </div>
 
   <!-- Dedicated Cropper Modal -->
-  <div id="cropModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4 md:p-6">
-    <div class="modal-panel flex flex-col w-full max-w-5xl h-[92vh] max-h-[900px] overflow-hidden rounded-2xl border dark:border-chalk/15 border-[#E5E0D8] shadow-2xl animate-scaleUp">
+  <div id="cropModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-0 sm:p-4 md:p-6">
+    <div class="modal-panel flex flex-col w-full max-w-5xl h-[100dvh] sm:h-[92vh] max-h-none sm:max-h-[900px] overflow-hidden rounded-none sm:rounded-2xl border-0 sm:border dark:border-chalk/15 border-[#E5E0D8] shadow-2xl animate-scaleUp">
       <!-- Modal Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b dark:border-chalk/10 border-[#E5E0D8] bg-board-900/50 dark:bg-board-950/80 shrink-0">
-        <div class="flex items-center gap-3">
-          <span class="w-9 h-9 rounded-xl bg-gold/15 text-gold flex items-center justify-center font-bold text-base shadow-sm">
+      <div class="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3.5 border-b dark:border-chalk/10 border-[#E5E0D8] bg-board-900/50 dark:bg-board-950/80 shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gold/15 text-gold flex items-center justify-center font-bold text-sm sm:text-base shadow-sm">
             <i class="fa-solid fa-crop-simple"></i>
           </span>
           <div>
-            <h3 class="font-display text-sm sm:text-base font-bold dark:text-chalk text-paper-ink">Cắt Vùng Chọn Đề Toán</h3>
-            <p class="text-[11px] dark:text-chalk-dim text-[#6B6560]">Dùng chuột hoặc ngón tay khoanh vùng câu hỏi / công thức cần chuyển đổi</p>
+            <h3 class="font-display text-xs sm:text-base font-bold dark:text-chalk text-paper-ink">Cắt Vùng Chọn Đề Toán</h3>
+            <p class="text-[10px] sm:text-[11px] dark:text-chalk-dim text-[#6B6560] hidden sm:block">Dùng chuột hoặc ngón tay khoanh vùng câu hỏi / công thức cần chuyển đổi</p>
           </div>
         </div>
         <button id="closeCropModalBtn" type="button" class="icon-btn" title="Đóng (Esc)">
@@ -639,42 +660,42 @@
       </div>
 
       <!-- Modal Canvas / Cropper Container -->
-      <div class="flex-1 min-h-0 bg-[#0c1015] relative overflow-hidden flex items-center justify-center p-3">
+      <div class="flex-1 min-h-0 bg-[#0c1015] relative overflow-hidden flex items-center justify-center p-2 sm:p-3">
         <div class="w-full h-full max-w-full max-h-full flex items-center justify-center overflow-hidden">
           <img id="cropModalImg" src="" alt="Vùng cắt ảnh" class="max-w-full max-h-full block">
         </div>
       </div>
 
       <!-- Modal Toolbar & Action Footer -->
-      <div class="px-5 py-3 border-t dark:border-chalk/10 border-[#E5E0D8] bg-board-900/80 dark:bg-board-950 flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div class="px-3 sm:px-5 py-2.5 sm:py-3 border-t dark:border-chalk/10 border-[#E5E0D8] bg-board-900/80 dark:bg-board-950 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 shrink-0">
         <!-- Transform Controls -->
-        <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
           <button id="cropZoomInBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Phóng to (+)">
             <i class="fa-solid fa-magnifying-glass-plus text-gold"></i>
           </button>
           <button id="cropZoomOutBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Thu nhỏ (-)">
             <i class="fa-solid fa-magnifying-glass-minus text-gold"></i>
           </button>
-          <div class="h-4 w-px bg-chalk/10 mx-1"></div>
+          <div class="h-4 w-px bg-chalk/10 mx-0.5 sm:mx-1"></div>
           <button id="cropRotateLeftBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Xoay trái 90°">
             <i class="fa-solid fa-rotate-left"></i>
           </button>
           <button id="cropRotateRightBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Xoay phải 90°">
             <i class="fa-solid fa-rotate-right"></i>
           </button>
-          <div class="h-4 w-px bg-chalk/10 mx-1"></div>
+          <div class="h-4 w-px bg-chalk/10 mx-0.5 sm:mx-1"></div>
           <button id="cropResetBtn" type="button" class="btn-chip text-xs py-1.5 px-2.5" title="Khôi phục khung mặc định">
-            <i class="fa-solid fa-arrows-rotate"></i> Khôi phục
+            <i class="fa-solid fa-arrows-rotate"></i> <span class="hidden xs:inline">Khôi phục</span>
           </button>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center gap-2">
-          <button id="cropCancelModalBtn" type="button" class="btn-crop-cancel text-xs py-2 px-3.5 flex items-center gap-1.5 font-medium rounded-lg transition-all" title="Hủy bỏ và đóng hộp thoại (Esc)">
-            <i class="fa-solid fa-xmark text-xs"></i> Hủy Bỏ <kbd class="modal-kbd">Esc</kbd>
+        <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+          <button id="cropCancelModalBtn" type="button" class="btn-crop-cancel justify-center text-xs py-2.5 sm:py-2 px-3 flex items-center gap-1.5 font-medium rounded-lg transition-all" title="Hủy bỏ và đóng hộp thoại (Esc)">
+            <i class="fa-solid fa-xmark text-xs"></i> <span>Hủy Bỏ</span> <kbd class="modal-kbd hidden sm:inline-block">Esc</kbd>
           </button>
-          <button id="cropConfirmModalBtn" type="button" class="btn-crop-confirm text-xs py-2 px-4 font-bold flex items-center gap-1.5 rounded-lg shadow-md transition-all" title="Xác nhận vùng chọn đã cắt (Ctrl + Enter)">
-            <i class="fa-solid fa-check"></i> Xác Nhận Cắt <kbd class="modal-kbd">Ctrl+↵</kbd>
+          <button id="cropConfirmModalBtn" type="button" class="btn-crop-confirm justify-center text-xs py-2.5 sm:py-2 px-3 sm:px-4 font-bold flex items-center gap-1.5 rounded-lg shadow-md transition-all" title="Xác nhận vùng chọn đã cắt (Ctrl + Enter)">
+            <i class="fa-solid fa-check"></i> <span>Xác Nhận Cắt</span> <kbd class="modal-kbd hidden sm:inline-block">Ctrl+↵</kbd>
           </button>
         </div>
       </div>
@@ -682,7 +703,7 @@
   </div>
 
   <!-- Toast Notification Container -->
-  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 pointer-events-none"></div>
+  <div id="toastContainer" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:bottom-5 z-50 flex flex-col gap-2 pointer-events-none items-center sm:items-end"></div>
 
   <!-- Hidden Form for Direct Overleaf Submission -->
   <form id="overleafForm" action="https://www.overleaf.com/docs" method="POST" target="_blank" class="hidden">

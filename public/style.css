@@ -1475,6 +1475,171 @@ html:not(.dark) .theme-toggle-btn:hover {
   background: rgba(0,0,0,0.06);
 }
 
+/* ==========================================================================
+   Mobile-First & Responsive Enhancements
+   ========================================================================== */
+
+/* Prevent horizontal viewport overflow & improve touch feeling */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Mobile Segmented View Switcher buttons */
+.mobile-nav-btn {
+  color: var(--chalk-faint);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-nav-btn.active {
+  background: var(--chalk);
+  color: var(--board-900);
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.mobile-nav-btn:not(.active):hover {
+  color: var(--chalk);
+  background: rgba(239, 232, 216, 0.08);
+}
+html:not(.dark) .mobile-nav-btn {
+  color: var(--light-text-faint);
+}
+html:not(.dark) .mobile-nav-btn.active {
+  background: var(--light-text);
+  color: var(--light-surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+html:not(.dark) .mobile-nav-btn:not(.active):hover {
+  color: var(--light-text);
+  background: rgba(0,0,0,0.05);
+}
+
+/* Quick insert toolbar touch enhancement */
+#quickInsertToolbar {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scroll-behavior: smooth;
+}
+
+/* KaTeX equations responsive protection */
+#renderOutput .katex-display {
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+#renderOutput .katex {
+  max-width: 100%;
+}
+
+/* Screen width < 1024px (Mobile & Tablet) */
+@media (max-width: 1023px) {
+  /* Slate panels slightly more compact */
+  .slate-panel {
+    border-radius: 12px;
+  }
+}
+
+/* Screen width < 640px (Mobile Phones) */
+@media (max-width: 640px) {
+  /* Prevent iOS zoom on input focus */
+  input:not([type="checkbox"]):not([type="radio"]),
+  select {
+    font-size: 15px !important;
+  }
+
+  /* Image Tools Bar on mobile: grid of 3 equal columns */
+  .image-tools-bar {
+    padding: 6px 8px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 6px;
+    border-radius: 10px;
+  }
+  .image-tools-group {
+    display: contents;
+  }
+  .btn-tool-crop,
+  .btn-tool-rotate,
+  .btn-tool-delete {
+    width: 100%;
+    justify-content: center;
+    height: 38px;
+    padding: 0 6px;
+    font-size: 11.5px;
+    border-radius: 8px;
+  }
+  .btn-tool-crop .btn-tool-badge {
+    display: none;
+  }
+
+  /* Image Preview floating actions */
+  .preview-quick-btn {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 11.5px;
+  }
+
+  /* Exam Paper Output on mobile */
+  .exam-paper #renderOutput {
+    padding: 12px 10px 14px 22px !important;
+    font-size: 14.5px !important;
+    line-height: 1.75;
+  }
+  .exam-paper #renderOutput::before {
+    left: 10px !important;
+  }
+
+  /* Mobile multiple-choice questions */
+  #renderOutput .choice-grid-4,
+  #renderOutput .choice-grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  #renderOutput .choice-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 6px !important;
+  }
+  #renderOutput .choice-item {
+    padding: 5px 8px !important;
+    font-size: 13.5px !important;
+  }
+  #renderOutput .question-card {
+    padding: 10px 12px !important;
+    margin: 8px 0 !important;
+  }
+
+  /* KaTeX display formula padding */
+  #renderOutput .katex-display {
+    padding: 6px 8px !important;
+    margin: 0.65em 0 !important;
+    font-size: 0.95em;
+  }
+
+  /* Toast notification on mobile */
+  .toast {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px 14px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  /* Cropper Modal on mobile */
+  #cropModal {
+    padding: 0 !important;
+  }
+  #cropModal .modal-panel {
+    border-radius: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+}
+
 /* --- Print --- */
 @media print {
   body * { visibility: hidden; }
