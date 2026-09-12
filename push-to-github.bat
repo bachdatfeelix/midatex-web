@@ -1,8 +1,8 @@
 @echo off
-title Push Math2LaTeX to GitHub (bachdatfeelix)
+title Push MiDaTeX to GitHub (bachdatfeelix)
 color 0b
 echo ========================================================
-echo       PUSH CODE LEN GITHUB: bachdatfeelix/math-to-latex
+echo       PUSH CODE LEN GITHUB: bachdatfeelix/midatex
 echo ========================================================
 echo.
 cd /d "%~dp0"
@@ -20,7 +20,7 @@ echo.
 if %errorlevel% equ 0 (
     color 0a
     echo [OK] PUSH CODE LEN GITHUB THANH CONG!
-    echo [!] Xem repository tai: https://github.com/bachdatfeelix/math-to-latex
+    echo [!] Xem repository tai: https://github.com/bachdatfeelix/midatex
 ) else (
     color 0c
     echo [X] CO LOI XAY RA KHI PUSH!

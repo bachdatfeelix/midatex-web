@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: math-to-latex-studio
+    name: midatex
     env: node
     plan: free
     buildCommand: npm install
