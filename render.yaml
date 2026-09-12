@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: midatex
+    name: midatex-web
     env: node
     plan: free
     buildCommand: npm install

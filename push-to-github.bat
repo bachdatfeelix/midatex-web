@@ -2,7 +2,7 @@
 title Push MiDaTeX to GitHub (bachdatfeelix)
 color 0b
 echo ========================================================
-echo       PUSH CODE LEN GITHUB: bachdatfeelix/midatex
+echo       PUSH CODE LEN GITHUB: bachdatfeelix/midatex-web
 echo ========================================================
 echo.
 cd /d "%~dp0"
@@ -20,7 +20,7 @@ echo.
 if %errorlevel% equ 0 (
     color 0a
     echo [OK] PUSH CODE LEN GITHUB THANH CONG!
-    echo [!] Xem repository tai: https://github.com/bachdatfeelix/midatex
+    echo [!] Xem repository tai: https://github.com/bachdatfeelix/midatex-web
 ) else (
     color 0c
     echo [X] CO LOI XAY RA KHI PUSH!
