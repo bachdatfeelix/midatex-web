@@ -6,6 +6,10 @@
       "destination": "/api/index.js"
     },
     {
+      "source": "/ads.txt",
+      "destination": "/public/ads.txt"
+    },
+    {
       "source": "/",
       "destination": "/public/index.html"
     },
