@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMathToolbarSymbols();
   renderLatexPreview();
   initTheme();
+  initPageAds();
 });
 
 function initElements() {
@@ -167,6 +168,15 @@ function initElements() {
     guideModal: document.getElementById('guideModal'),
     guideGotItBtn: document.getElementById('guideGotItBtn'),
 
+    // Pro Google Ads Modal (Phương án 2)
+    proAdModal: document.getElementById('proAdModal'),
+    closeProAdModalBtn: document.getElementById('closeProAdModalBtn'),
+    cancelProAdBtn: document.getElementById('cancelProAdBtn'),
+    confirmProUnlockBtn: document.getElementById('confirmProUnlockBtn'),
+    proAdCountdownText: document.getElementById('proAdCountdownText'),
+    proAdCountdownIcon: document.getElementById('proAdCountdownIcon'),
+    proAdFallback: document.getElementById('proAdFallback'),
+
     // Toast
     toastContainer: document.getElementById('toastContainer'),
 
@@ -236,6 +246,96 @@ function applyModeUI() {
       el.uploadPrompt?.classList.remove('hidden');
     }
   }
+}
+
+// ==========================================================================
+// Google AdSense Management (Page Banners & Pro Unlock Modal)
+// ==========================================================================
+let proAdTimer = null;
+
+function initPageAds() {
+  try {
+    // Kích hoạt nạp quảng cáo cho các banner trên trang (Header & Footer)
+    const ads = document.querySelectorAll('ins.adsbygoogle:not([data-ad-status])');
+    ads.forEach(() => {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    });
+  } catch (err) {
+    console.warn('[MiDaTeX Ads] Lỗi nạp banner quảng cáo trang:', err);
+  }
+}
+
+function handleProModeClick() {
+  if (state.mode === 'pro') {
+    showToast('Bạn đang ở chế độ Pro (Hỗ trợ PDF & Tài liệu)', 'info');
+    return;
+  }
+  openProAdModal();
+}
+
+function openProAdModal() {
+  if (!el.proAdModal) {
+    setMode('pro');
+    return;
+  }
+
+  el.proAdModal.classList.remove('hidden');
+  el.proAdModal.classList.add('flex');
+
+  // Nạp quảng cáo bên trong modal nếu chưa nạp
+  try {
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  } catch (err) {
+    console.warn('[MiDaTeX Ads] Lỗi nạp quảng cáo trong modal:', err);
+  }
+
+  // Tự động ẩn Fallback placeholder nếu thẻ quảng cáo thực tế đã tải thành công
+  setTimeout(() => {
+    const ins = el.proAdModal?.querySelector('ins.adsbygoogle');
+    if (ins && (ins.getAttribute('data-ad-status') === 'filled' || ins.querySelector('iframe'))) {
+      if (el.proAdFallback) el.proAdFallback.style.display = 'none';
+    }
+  }, 1200);
+
+  // Đếm ngược 5 giây mở khóa
+  let countdown = 5;
+  if (el.confirmProUnlockBtn) {
+    el.confirmProUnlockBtn.disabled = true;
+    el.confirmProUnlockBtn.className = 'btn-pro-unlock-disabled text-xs py-2 px-4 rounded-lg flex items-center gap-2 font-semibold';
+  }
+  if (el.proAdCountdownText) el.proAdCountdownText.textContent = `Chờ ${countdown}s...`;
+  if (el.proAdCountdownIcon) el.proAdCountdownIcon.className = 'fa-solid fa-lock text-xs';
+
+  clearInterval(proAdTimer);
+  proAdTimer = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+      if (el.proAdCountdownText) el.proAdCountdownText.textContent = `Chờ ${countdown}s...`;
+    } else {
+      clearInterval(proAdTimer);
+      if (el.confirmProUnlockBtn) {
+        el.confirmProUnlockBtn.disabled = false;
+        el.confirmProUnlockBtn.className = 'btn-pro-unlock-active text-xs py-2 px-4 rounded-lg flex items-center gap-2 font-bold shadow-md animate-pulse';
+      }
+      if (el.proAdCountdownText) el.proAdCountdownText.textContent = 'Mở Khóa Chế Độ Pro Ngay';
+      if (el.proAdCountdownIcon) el.proAdCountdownIcon.className = 'fa-solid fa-unlock text-xs text-board-950';
+    }
+  }, 1000);
+}
+
+function closeProAdModal() {
+  clearInterval(proAdTimer);
+  if (el.proAdModal) {
+    el.proAdModal.classList.add('hidden');
+    el.proAdModal.classList.remove('flex');
+  }
+}
+
+function unlockProMode() {
+  closeProAdModal();
+  sessionStorage.setItem('midatex_pro_unlocked', 'true');
+  setMode('pro');
+  showToast('🎉 Đã mở khóa và kích hoạt thành công chế độ Pro!', 'success');
 }
 
 // The upload input is layered over the drop zone. Disable it while a PDF is
@@ -472,7 +572,7 @@ function setupEventListeners() {
 
   // Mode Switcher
   el.modeStandardBtn?.addEventListener('click', () => setMode('standard'));
-  el.modeProBtn?.addEventListener('click', () => setMode('pro'));
+  el.modeProBtn?.addEventListener('click', handleProModeClick);
 
   // File Upload Handlers
   el.fileInput?.addEventListener('change', handleFileSelect);
@@ -533,6 +633,13 @@ function setupEventListeners() {
   el.cropResetBtn?.addEventListener('click', () => state.cropper?.reset());
 
   window.addEventListener('keydown', (e) => {
+    const isProAdModalOpen = el.proAdModal && !el.proAdModal.classList.contains('hidden');
+    if (isProAdModalOpen) {
+      if (e.key === 'Escape') {
+        closeProAdModal();
+        return;
+      }
+    }
     const isCropModalOpen = el.cropModal && !el.cropModal.classList.contains('hidden');
     if (isCropModalOpen) {
       if (e.key === 'Escape') {
@@ -657,6 +764,14 @@ function setupEventListeners() {
   el.guideGotItBtn?.addEventListener('click', () => el.guideModal?.classList.add('hidden'));
   el.guideModal?.addEventListener('click', (e) => {
     if (e.target === el.guideModal) el.guideModal?.classList.add('hidden');
+  });
+
+  // Pro Google Ads Modal Handlers (Phương án 2)
+  el.closeProAdModalBtn?.addEventListener('click', closeProAdModal);
+  el.cancelProAdBtn?.addEventListener('click', closeProAdModal);
+  el.confirmProUnlockBtn?.addEventListener('click', unlockProMode);
+  el.proAdModal?.addEventListener('click', (e) => {
+    if (e.target === el.proAdModal) closeProAdModal();
   });
 
   // Theme Toggle

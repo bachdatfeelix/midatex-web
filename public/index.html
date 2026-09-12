@@ -33,6 +33,8 @@
     }
   </script>
 
+  <!-- Google AdSense (Thay ca-pub-XXXXXXXXXXXXXXXX bằng mã AdSense Publisher ID của bạn) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -183,6 +185,28 @@
         <i class="fa-solid fa-book-open-reader text-pen text-xs"></i>
         <span class="truncate">Xem Trước</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Top / Header Banner Ad Container -->
+  <div class="relative z-10 w-full max-w-[1800px] mx-auto px-3 sm:px-5 lg:px-6 pt-3">
+    <div class="rounded-xl dark:bg-board-800/70 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-2 sm:p-2.5 flex flex-col items-center justify-center min-h-[85px] text-center overflow-hidden shadow-sm">
+      <div class="text-[9px] uppercase font-mono tracking-widest text-chalk-faint/60 dark:text-chalk-dim/50 text-[#888] mb-1 flex items-center gap-1.5">
+        <i class="fa-brands fa-google text-[10px] text-gold"></i> <span>Quảng cáo Header / Advertisement</span>
+      </div>
+      <div class="w-full flex items-center justify-center min-h-[60px] relative">
+        <ins class="adsbygoogle"
+             style="display:block;width:100%;max-width:728px;height:90px"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="1111111111"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <!-- Fallback Placeholder -->
+        <div class="header-ad-fallback absolute inset-0 flex items-center justify-center gap-2.5 text-xs dark:text-chalk-dim text-[#6B6560] pointer-events-none">
+          <i class="fa-solid fa-rectangle-ad text-base text-gold/70"></i>
+          <span>Banner Quảng Cáo Header (728×90 Responsive)</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -523,6 +547,42 @@
 
   </main>
 
+  <!-- Footer & Bottom Banner Ad Container -->
+  <footer class="relative z-10 mt-auto border-t dark:border-chalk/10 border-[#E5E0D8] dark:bg-board-900/90 bg-white/90 backdrop-blur-md pt-4 pb-6 px-3 sm:px-6">
+    <div class="max-w-[1800px] mx-auto flex flex-col items-center gap-3.5">
+      <!-- Footer Banner Ad Slot -->
+      <div class="w-full rounded-xl dark:bg-board-800/70 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] p-2 sm:p-2.5 flex flex-col items-center justify-center min-h-[85px] text-center overflow-hidden shadow-sm">
+        <div class="text-[9px] uppercase font-mono tracking-widest text-chalk-faint/60 dark:text-chalk-dim/50 text-[#888] mb-1 flex items-center gap-1.5">
+          <i class="fa-brands fa-google text-[10px] text-gold"></i> <span>Quảng cáo Footer / Advertisement</span>
+        </div>
+        <div class="w-full flex items-center justify-center min-h-[60px] relative">
+          <ins class="adsbygoogle"
+               style="display:block;width:100%;max-width:728px;height:90px"
+               data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+               data-ad-slot="2222222222"
+               data-ad-format="horizontal"
+               data-full-width-responsive="true"></ins>
+          <!-- Fallback Placeholder -->
+          <div class="footer-ad-fallback absolute inset-0 flex items-center justify-center gap-2.5 text-xs dark:text-chalk-dim text-[#6B6560] pointer-events-none">
+            <i class="fa-solid fa-rectangle-ad text-base text-gold/70"></i>
+            <span>Banner Quảng Cáo Footer (728×90 Responsive)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright & Project Info -->
+      <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] dark:text-chalk-dim text-[#7A746E]">
+        <div class="flex items-center gap-2">
+          <span class="font-display font-semibold dark:text-chalk text-paper-ink">MiDaTeX</span>
+          <span>— Chuyển ảnh &amp; PDF đề toán sang mã LaTeX chuẩn đẹp</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span>Duy trì miễn phí nhờ sự đồng hành của các nhà tài trợ</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <!-- Settings Modal (Multi-Key Support with + Button) -->
   <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="modal-panel p-4 sm:p-6 flex flex-col gap-4 sm:gap-5 max-w-lg w-full max-h-[92vh] overflow-y-auto animate-scaleUp">
@@ -699,6 +759,72 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Pro Unlock Google Ads Modal (Phương án 2: Banner 300x250 + Đếm ngược 5s) -->
+  <div id="proAdModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="slate-panel max-w-md w-full p-4 sm:p-6 flex flex-col gap-4 max-h-[95vh] overflow-y-auto animate-scaleUp shadow-2xl relative border dark:border-chalk/15 border-[#E5E0D8]">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b dark:border-chalk/10 border-[#E5E0D8] pb-3.5">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-pen/15 text-pen-400 flex items-center justify-center font-bold text-sm shadow-sm">
+            <i class="fa-solid fa-crown text-gold"></i>
+          </span>
+          <div>
+            <h3 class="font-display text-sm sm:text-base font-bold dark:text-chalk text-paper-ink">Mở Khóa Chế Độ Pro</h3>
+            <p class="text-[11px] dark:text-chalk-dim text-[#6B6560]">Hỗ trợ tài liệu PDF nhiều trang &amp; ảnh độ phân giải cao</p>
+          </div>
+        </div>
+        <button id="closeProAdModalBtn" type="button" class="icon-btn" title="Đóng (Esc)">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Notice & Google AdSense Container -->
+      <div class="flex flex-col gap-3">
+        <p class="text-xs dark:text-chalk-dim text-[#6B6560] leading-relaxed">
+          Chế độ Pro là tính năng cao cấp hoàn toàn miễn phí. Vui lòng xem quảng cáo ngắn <strong class="dark:text-chalk text-paper-ink">5 giây</strong> để hỗ trợ chi phí duy trì hệ thống MiDaTeX:
+        </p>
+
+        <!-- Google Ad Container (Tuân thủ chính sách AdSense) -->
+        <div class="p-3 rounded-xl dark:bg-board-950 bg-[#F5F3EF] border dark:border-chalk/10 border-[#E5E0D8] flex flex-col items-center justify-center min-h-[285px]">
+          <div class="text-[10px] uppercase font-mono tracking-widest text-chalk-faint/60 dark:text-chalk-dim/50 text-[#888] mb-2 flex items-center gap-1.5">
+            <i class="fa-brands fa-google text-xs text-gold"></i> <span>Quảng cáo tài trợ / Advertisement</span>
+          </div>
+
+          <!-- AdSense Unit (300x250 Medium Rectangle) -->
+          <div class="w-[300px] h-[250px] overflow-hidden flex items-center justify-center relative rounded-lg border border-dashed dark:border-chalk/10 border-gray-300">
+            <!-- Thay ca-pub-XXXXXXXXXXXXXXXX và data-ad-slot bằng mã quảng cáo của bạn -->
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:300px;height:250px"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="3333333333"></ins>
+
+            <!-- Fallback Banner Placeholder (tự động ẩn khi Google Ads thật tải thành công) -->
+            <div id="proAdFallback" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-gradient-to-br dark:from-board-900 dark:to-board-950 from-gray-50 to-gray-100 pointer-events-none -z-0">
+              <i class="fa-solid fa-rectangle-ad text-3xl text-gold/70 mb-2"></i>
+              <span class="text-xs font-semibold dark:text-chalk text-paper-ink">Google AdSense (300×250)</span>
+              <p class="text-[10px] dark:text-chalk-dim text-[#6B6560] mt-1 max-w-[220px]">
+                Banner quảng cáo Google sẽ tự động hiển thị tại đây khi chạy trên tên miền chính thức.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons & Countdown -->
+      <div class="flex items-center justify-end gap-2.5 border-t dark:border-chalk/10 border-[#E5E0D8] pt-3.5">
+        <button id="cancelProAdBtn" type="button" class="btn-secondary text-xs py-2 px-3.5">
+          Để Sau
+        </button>
+        <button id="confirmProUnlockBtn" type="button" disabled class="btn-pro-unlock-disabled text-xs py-2 px-4 rounded-lg flex items-center gap-2 font-semibold">
+          <i id="proAdCountdownIcon" class="fa-solid fa-lock text-xs"></i>
+          <span id="proAdCountdownText">Chờ 5s...</span>
+        </button>
+      </div>
+
     </div>
   </div>
 
